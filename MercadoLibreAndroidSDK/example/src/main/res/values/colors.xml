@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">@color/meli_yellow</color>
+    <color name="colorPrimaryDark">#F5D315</color>
+    <color name="colorAccent">#009EE0</color>
+
+    <color name="meli_yellow">#fedc13</color>
+    <color name="window_background">#f1f1f1</color>
 </resources>

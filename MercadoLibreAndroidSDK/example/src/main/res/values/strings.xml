@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">MercadoLibre Android SDK</string>
+
+    <!-- Main Screen -->
+    <string name="txt_examples">Here is a list of examples that will help you integrate the MercadoLibre SDK into your app. </string>
+    <string name="btn_login_examples">Login/Register</string>
+    
+    
+    <!-- Declare the proper app identifier for this application -->
+    <string name="meli_app_id">7895674329598463</string>
 </resources>
