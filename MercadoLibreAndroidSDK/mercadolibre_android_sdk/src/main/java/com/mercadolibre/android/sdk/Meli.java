@@ -7,7 +7,10 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+
+import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
 
 import java.util.regex.Pattern;
 
@@ -195,6 +198,19 @@ public final class Meli {
         if (context == null) {
             throw new NullPointerException(INVALID_NULL_CONTEXT);
         }
+    }
+
+
+    /**
+     * Creates a new instance of a {@link DialogFragment} that can be used to login the
+     * user using OAuth.
+     *
+     * @return - thew created instance.
+     */
+    static DialogFragment getLoginDialogNewInstance() {
+        String loginUrl = Config.getLoginUrlForApplicationIdentifier(meliApplicationId);
+        LoginWebDialogFragment fragmentInstance = LoginWebDialogFragment.newInstance(loginUrl);
+        return fragmentInstance;
     }
 
 }

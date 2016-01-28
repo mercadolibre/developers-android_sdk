@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(manifest = "src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.LOLLIPOP, shadows=ExtendedShadowWebView.class)
 @RunWith(RobolectricTestRunner.class)
 public class LoginWebDialogFragmentTests {
 
