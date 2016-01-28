@@ -28,6 +28,11 @@ import static org.mockito.Mockito.when;
 public class MeliTests {
 
     private static final String MOCK_APP_ID = "99181992988";
+    private static final String VALID_REDIRECT_URL = "http://someUrl.com";
+    private static final String VALID_REDIRECT_URL_HTTPS = "https://someUrl.com";
+    private static final String INVALID_REDIRECT_URL = "file://someUrl.com";
+
+
     private Context mContextMock;
     private PackageManager mPackageManagerMock;
     private ApplicationInfo mAppInfoMock;
@@ -41,6 +46,7 @@ public class MeliTests {
         mMetadataMock = mock(Bundle.class);
         when(mContextMock.getPackageName()).thenReturn("com.mercadolibre.android.sdk");
         when(mContextMock.getPackageManager()).thenReturn(mPackageManagerMock);
+        Meli.shutDown();
     }
 
 
@@ -131,9 +137,13 @@ public class MeliTests {
             when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
                     .thenReturn(mAppInfoMock);
             when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(MOCK_APP_ID);
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
             mAppInfoMock.metaData = mMetadataMock;
+
             Meli.loadMetaDataFromManifest(mContextMock);
+
             assertEquals(MOCK_APP_ID, Meli.getApplicationIdProperty());
+            assertEquals(VALID_REDIRECT_URL, Meli.getLoginRedirectUrlProperty());
         } catch (Exception e) {
             fail();
             System.out.println(e.getMessage());
@@ -147,7 +157,9 @@ public class MeliTests {
             when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
                     .thenReturn(mAppInfoMock);
             when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(null);
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
             mAppInfoMock.metaData = mMetadataMock;
+
             Meli.loadMetaDataFromManifest(mContextMock);
         } catch (MeliException ex) {
             assertEquals(Meli.APP_IDENTIFIER_NOT_DECLARED, ex.getMessage());
@@ -164,7 +176,9 @@ public class MeliTests {
             when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
                     .thenReturn(mAppInfoMock);
             when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn("");
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
             mAppInfoMock.metaData = mMetadataMock;
+
             Meli.loadMetaDataFromManifest(mContextMock);
         } catch (MeliException ex) {
             assertEquals(Meli.APP_IDENTIFIER_NOT_DECLARED, ex.getMessage());
@@ -181,7 +195,9 @@ public class MeliTests {
             when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
                     .thenReturn(mAppInfoMock);
             when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn("7.895674E15");
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
             mAppInfoMock.metaData = mMetadataMock;
+
             Meli.loadMetaDataFromManifest(mContextMock);
         } catch (MeliException ex) {
             assertEquals(Meli.APP_IDENTIFIER_AS_INTEGER, ex.getMessage());
@@ -198,10 +214,51 @@ public class MeliTests {
             when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
                     .thenReturn(mAppInfoMock);
             when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(245616);
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
             mAppInfoMock.metaData = mMetadataMock;
+
             Meli.loadMetaDataFromManifest(mContextMock);
         } catch (MeliException ex) {
             assertEquals(Meli.APP_IDENTIFIER_AS_INTEGER, ex.getMessage());
+        } catch (Exception e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void loadMetadataFromManifestInvalidUrl() {
+        try {
+            when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
+                    .thenReturn(mAppInfoMock);
+            when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(MOCK_APP_ID);
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(INVALID_REDIRECT_URL);
+            mAppInfoMock.metaData = mMetadataMock;
+
+            Meli.loadMetaDataFromManifest(mContextMock);
+        } catch (MeliException ex) {
+            assertEquals(Meli.INVALID_URL_FORMAT, ex.getMessage());
+        } catch (Exception e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void loadMetadataFromManifestValidUrlAsHttps() {
+        try {
+            when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
+                    .thenReturn(mAppInfoMock);
+            when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(MOCK_APP_ID);
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL_HTTPS);
+            mAppInfoMock.metaData = mMetadataMock;
+
+            Meli.loadMetaDataFromManifest(mContextMock);
+
+            assertEquals(MOCK_APP_ID, Meli.getApplicationIdProperty());
+            assertEquals(VALID_REDIRECT_URL_HTTPS, Meli.getLoginRedirectUrlProperty());
         } catch (Exception e) {
             fail();
             System.out.println(e.getMessage());
@@ -231,13 +288,17 @@ public class MeliTests {
             when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
                     .thenReturn(mAppInfoMock);
             when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(MOCK_APP_ID);
+
+            // Redirect URL
+            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
+
             mAppInfoMock.metaData = mMetadataMock;
 
             Meli.initializeSDK(mContextMock);
 
             assertTrue(Meli.isSDKInitialized());
             assertEquals(MOCK_APP_ID, Meli.getApplicationIdProperty());
-
+            assertEquals(VALID_REDIRECT_URL, Meli.getLoginRedirectUrlProperty());
 
         } catch (Exception e) {
             fail();

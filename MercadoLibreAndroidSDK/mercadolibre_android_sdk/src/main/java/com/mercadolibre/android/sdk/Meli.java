@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+import android.webkit.URLUtil;
 
 import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
 
@@ -20,10 +23,11 @@ import java.util.regex.Pattern;
  */
 public final class Meli {
 
-    /**
-     * The key for the application ID in the Android manifest.
-     */
+    // The key for the application ID in the Android manifest.
     public static final String APPLICATION_ID_PROPERTY = "com.mercadolibre.android.sdk.ApplicationId";
+
+    // The key for the redirection URL in the Android manifest.
+    public static final String LOGIN_REDIRECT_URL_PROPERTY = "com.mercadolibre.android.sdk.RedirectUrl";
 
     //TODO add SDK readme URL here.
     static final String MERCADO_LIBRE_ACTIVITY_NOT_FOUND = "MercadoLibreActivity is not declared in your AndroidManifest.xml"
@@ -44,11 +48,22 @@ public final class Meli {
             + " Please, verify the example code provided in TODO 3";
 
 
+    //TODO 3 add sdk readme URL here for app identifier.
+    static final String REDIRECT_URL_NOT_DECLARED = "You need to place the redirection URL in the AndroidManifest file"
+            + " with the " + LOGIN_REDIRECT_URL_PROPERTY + " key. Check TODO 3";
+
+    //TODO 4
+    static final String INVALID_URL_FORMAT = "The redirect URI provided with the key " + LOGIN_REDIRECT_URL_PROPERTY +
+            " has an invalid format. Please, refer to TODO 4";
+
+
     // Flag used to indicate when the SDK is initialized.
     private static boolean isSDKInitialized = false;
 
     // Application identifier declared in the AndroidManifest of the client application
     private static String meliApplicationId = null;
+
+    private static String meliRedirectLoginUrl = null;
 
 
     /**
@@ -77,7 +92,7 @@ public final class Meli {
         loadMetaDataFromManifest(applicationContext);
 
         // OK, if the application identifier is present, the init is done
-        isSDKInitialized = meliApplicationId != null;
+        isSDKInitialized = meliApplicationId != null && meliRedirectLoginUrl != null;
 
     }
 
@@ -95,8 +110,22 @@ public final class Meli {
      *
      * @return - the application's identifier.
      */
-    static String getApplicationIdProperty() {
+    static
+    @Nullable
+    String getApplicationIdProperty() {
         return meliApplicationId;
+    }
+
+
+    /**
+     * Retrieves the application's redirect URL provided by the client application (if any).
+     *
+     * @return - the login redirect URL.
+     */
+    static
+    @Nullable
+    String getLoginRedirectUrlProperty() {
+        return meliRedirectLoginUrl;
     }
 
     /**
@@ -143,7 +172,7 @@ public final class Meli {
      * @param context - the {@link Context} of the application.
      */
     static void loadMetaDataFromManifest(Context context) {
-        if (meliApplicationId == null) {
+        if (!isSDKInitialized()) {
             validateContextNull(context);
 
             PackageManager pm = context.getPackageManager();
@@ -159,32 +188,81 @@ public final class Meli {
                 throw new MeliException(APP_IDENTIFIER_NOT_DECLARED);
             }
 
+            // Load the application identifier
+            if (meliApplicationId == null) {
+                loadApplicationID(applicationInfo.metaData);
 
-            Object appId = applicationInfo.metaData.get(APPLICATION_ID_PROPERTY);
+            }
 
-            if (appId == null) {
+            // Load the redirect URL for Oauth
+            if (meliRedirectLoginUrl == null) {
+                loadRedirectionUrl(applicationInfo.metaData);
+            }
+        }
+    }
+
+
+    /**
+     * Loads the application identifier from the metadata provided by the client application.
+     *
+     * @param metadata - a {@link Bundle} that represents the metadata provided by the client application.
+     */
+    private static void loadApplicationID(Bundle metadata) {
+        Object appId = metadata.get(APPLICATION_ID_PROPERTY);
+
+        if (appId == null) {
+            throw new MeliException(APP_IDENTIFIER_NOT_DECLARED);
+        }
+
+        if (appId instanceof String) {
+            meliApplicationId = (String) appId;
+
+            if (TextUtils.isEmpty(meliApplicationId)) {
+                meliApplicationId = null;
                 throw new MeliException(APP_IDENTIFIER_NOT_DECLARED);
             }
 
-            if (appId instanceof String) {
-                meliApplicationId = (String) appId;
-
-                if (TextUtils.isEmpty(meliApplicationId)) {
-                    meliApplicationId = null;
-                    throw new MeliException(APP_IDENTIFIER_NOT_DECLARED);
-                }
-
-                // Verify that the application id only contains numbers
-                if (!Pattern.matches("[0-9]+", meliApplicationId)) {
-                    meliApplicationId = null;
-                    throw new MeliException(APP_IDENTIFIER_AS_INTEGER);
-                }
-
-            } else if (appId instanceof Integer) {
+            // Verify that the application id only contains numbers
+            if (!Pattern.matches("[0-9]+", meliApplicationId)) {
+                meliApplicationId = null;
                 throw new MeliException(APP_IDENTIFIER_AS_INTEGER);
-            } else {
-                throw new MeliException(APP_IDENTIFIER_NOT_PARSED);
             }
+
+        } else if (appId instanceof Integer) {
+            throw new MeliException(APP_IDENTIFIER_AS_INTEGER);
+        } else {
+            throw new MeliException(APP_IDENTIFIER_NOT_PARSED);
+        }
+    }
+
+
+    /**
+     * Loads the application's redirect URL for Oauth, provided by the client application.
+     *
+     * @param metadata - a {@link Bundle} that represents the metadata provided by the client application.
+     */
+    private static void loadRedirectionUrl(Bundle metadata) {
+        Object redirectUrl = metadata.get(LOGIN_REDIRECT_URL_PROPERTY);
+
+        if (redirectUrl == null) {
+            throw new MeliException(REDIRECT_URL_NOT_DECLARED);
+        }
+
+        if (redirectUrl instanceof String) {
+            meliRedirectLoginUrl = (String) redirectUrl;
+
+            if (TextUtils.isEmpty(meliRedirectLoginUrl)) {
+                meliRedirectLoginUrl = null;
+                throw new MeliException(REDIRECT_URL_NOT_DECLARED);
+            }
+
+            // Verify that the redirect url looks like a real URL
+            if (!URLUtil.isHttpsUrl(meliRedirectLoginUrl) && !URLUtil.isHttpUrl(meliRedirectLoginUrl)) {
+                meliRedirectLoginUrl = null;
+                throw new MeliException(INVALID_URL_FORMAT);
+            }
+        } else {
+            throw new MeliException(INVALID_URL_FORMAT);
         }
     }
 
@@ -209,8 +287,16 @@ public final class Meli {
      */
     static DialogFragment getLoginDialogNewInstance() {
         String loginUrl = Config.getLoginUrlForApplicationIdentifier(meliApplicationId);
-        LoginWebDialogFragment fragmentInstance = LoginWebDialogFragment.newInstance(loginUrl);
-        return fragmentInstance;
+        return LoginWebDialogFragment.newInstance(loginUrl);
     }
 
+
+    /**
+     * Shuts down the SDK by setting all states to default
+     */
+    static void shutDown() {
+        meliApplicationId = null;
+        meliRedirectLoginUrl = null;
+        isSDKInitialized = false;
+    }
 }
