@@ -33,6 +33,11 @@
             android:name="com.mercadolibre.android.sdk.ApplicationId"
             android:value="@string/meli_app_id" />
 
+        <!-- Declare the Redirect URI attribute as required by the SDK -->
+        <meta-data
+            android:name="com.mercadolibre.android.sdk.RedirectUrl"
+            android:value="@string/meli_redirect_uri"/>
+
     </application>
 
 </manifest>

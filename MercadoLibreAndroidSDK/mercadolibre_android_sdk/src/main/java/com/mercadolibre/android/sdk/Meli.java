@@ -287,7 +287,7 @@ public final class Meli {
      */
     static DialogFragment getLoginDialogNewInstance() {
         String loginUrl = Config.getLoginUrlForApplicationIdentifier(meliApplicationId);
-        return LoginWebDialogFragment.newInstance(loginUrl);
+        return LoginWebDialogFragment.newInstance(loginUrl, meliRedirectLoginUrl);
     }
 
 

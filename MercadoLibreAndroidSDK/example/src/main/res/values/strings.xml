@@ -8,4 +8,7 @@
     
     <!-- Declare the proper app identifier for this application -->
     <string name="meli_app_id">7895674329598463</string>
+
+    <!-- Declare the Redirect URI requested by the Meli SDK -->
+    <string name="meli_redirect_uri">https://www.mobilesdkpoc.com</string>
 </resources>

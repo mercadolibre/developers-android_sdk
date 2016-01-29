@@ -21,7 +21,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.mercadolibre.android.sdk.MeliLogger;
 import com.mercadolibre.android.sdk.R;
+
+import java.util.Map;
 
 /**
  * All components com.mercadolibre.android.sdk.internal all for internal use only. These components
@@ -32,6 +35,7 @@ public class LoginWebDialogFragment extends DialogFragment {
 
 
     private static final String URL_PARAM_KEY = "url_param_key";
+    private static final String REDIRECT_URL_PARAM_KEY = "redirect_url_param_key";
 
 
     // View instance variable to control UI
@@ -41,6 +45,8 @@ public class LoginWebDialogFragment extends DialogFragment {
     // Login URL to load
     private String mUrl;
 
+    // Redirect URL
+    private String mRedirectUrl;
 
     public LoginWebDialogFragment() {
 
@@ -49,11 +55,13 @@ public class LoginWebDialogFragment extends DialogFragment {
 
     public static
     @NonNull
-    LoginWebDialogFragment newInstance(@NonNull String url) {
+    LoginWebDialogFragment newInstance(@NonNull String url, @NonNull String redirectUrl) {
+
         LoginWebDialogFragment newInstance = new LoginWebDialogFragment();
 
         Bundle args = new Bundle();
         args.putString(URL_PARAM_KEY, url);
+        args.putString(REDIRECT_URL_PARAM_KEY, redirectUrl);
         newInstance.setArguments(args);
 
         return newInstance;
@@ -70,6 +78,7 @@ public class LoginWebDialogFragment extends DialogFragment {
             Bundle args = getArguments();
             if (args != null && args.containsKey(URL_PARAM_KEY)) {
                 mUrl = args.getString(URL_PARAM_KEY);
+                mRedirectUrl = args.getString(REDIRECT_URL_PARAM_KEY);
             }
         }
     }
@@ -141,7 +150,11 @@ public class LoginWebDialogFragment extends DialogFragment {
     private class LoginWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            return super.shouldOverrideUrlLoading(view, url);
+            if(url.startsWith(LoginWebDialogFragment.this.mRedirectUrl)) {
+                MeliLogger.log("Redirect URL: " + url);
+                Map<String, String> params = Utils.parseUrl(url);
+            }
+            return false;
         }
 
 

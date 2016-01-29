@@ -21,7 +21,7 @@ import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
  * </pre>
  * This will ensure the proper behavior of the user interface.
  */
-public class MercadoLibreActivity extends FragmentActivity {
+public final class MercadoLibreActivity extends FragmentActivity {
 
     private static final String LOGIN_DIALOG_TAG = "login_dialog_fragment";
 
