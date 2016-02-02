@@ -1,10 +1,13 @@
 package com.mercadolibre.android.sdk;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
+import java.util.Map;
 
 /**
  * Activity that takes care of interacting with the user every time that
@@ -25,6 +28,20 @@ public final class MercadoLibreActivity extends FragmentActivity {
 
     private static final String LOGIN_DIALOG_TAG = "login_dialog_fragment";
 
+
+    /**
+     * Starts the {@link MercadoLibreActivity} with the login process set as current
+     * workflow.
+     *
+     * @param client
+     * @param requestCode
+     */
+    static void login(@NonNull Activity client, int requestCode) {
+        Intent intent = new Intent(client, MercadoLibreActivity.class);
+        client.startActivityForResult(intent, requestCode);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,5 +57,28 @@ public final class MercadoLibreActivity extends FragmentActivity {
             }
         }
 
+    }
+
+
+    /**
+     * Called when the login process is completed.
+     *
+     * @param loginInfo - the data associated with the login process.
+     */
+    public void onLoginCompleted(@NonNull Map<String, String> loginInfo) {
+        Meli.setIdentity(loginInfo);
+        setResult(RESULT_OK);
+        finish();
+    }
+
+
+    /**
+     * Called when the login process has suffered an error in order to
+     * leave the process properly.
+     */
+    public void onLoginErrorDetected() {
+        Meli.setIdentity(null);
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

@@ -1,8 +1,8 @@
 package com.mercadolibre.android.sdk.internal;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
-import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,7 +21,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.mercadolibre.android.sdk.MeliException;
 import com.mercadolibre.android.sdk.MeliLogger;
+import com.mercadolibre.android.sdk.MercadoLibreActivity;
 import com.mercadolibre.android.sdk.R;
 
 import java.util.Map;
@@ -29,13 +31,17 @@ import java.util.Map;
 /**
  * All components com.mercadolibre.android.sdk.internal all for internal use only. These components
  * should not be used from outside the library since this behavior is not supported and it will
- * suffer modifications without previous warning.
+ * suffer modifications without previous warning.<br>
+ * This fragment should be used only from {@link com.mercadolibre.android.sdk.MercadoLibreActivity}.
  */
-public class LoginWebDialogFragment extends DialogFragment {
+public final class LoginWebDialogFragment extends DialogFragment {
 
 
     private static final String URL_PARAM_KEY = "url_param_key";
     private static final String REDIRECT_URL_PARAM_KEY = "redirect_url_param_key";
+
+    static final String BAD_LIBRARY_USAGE = "Please, do not attempt to use this fragment from outside the MercadoLibre Android SDK"
+            + " You must call any of the methods from the Meli class in order to interact with this components";
 
 
     // View instance variable to control UI
@@ -66,7 +72,6 @@ public class LoginWebDialogFragment extends DialogFragment {
 
         return newInstance;
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -147,12 +152,24 @@ public class LoginWebDialogFragment extends DialogFragment {
     }
 
 
+    /**
+     * A {@link WebViewClient} used to listen for changes in the WebView
+     * being used to load the MercadoLibre login page.
+     */
     private class LoginWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if(url.startsWith(LoginWebDialogFragment.this.mRedirectUrl)) {
+            MeliLogger.log("LOADING URL: " + url);
+            if (url.startsWith(LoginWebDialogFragment.this.mRedirectUrl)) {
                 MeliLogger.log("Redirect URL: " + url);
                 Map<String, String> params = Utils.parseUrl(url);
+                if (params != null) {
+                    processLoginCompleted(params);
+                } else {
+                    processErrorFound();
+                }
+
+                return true;
             }
             return false;
         }
@@ -160,29 +177,21 @@ public class LoginWebDialogFragment extends DialogFragment {
 
         @Override
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            super.onReceivedError(view, request, error);
+            processErrorFound();
         }
 
 
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            super.onReceivedSslError(view, handler, error);
-        }
-
-
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            super.onPageStarted(view, url, favicon);
-        }
-
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
+            processErrorFound();
         }
     }
 
 
+    /**
+     * A @{link WebChromeClient} implementation used to listen for process
+     * updates when the WebView is loading a URL.
+     */
     private class LoginWebChromeClient extends android.webkit.WebChromeClient {
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
@@ -196,4 +205,28 @@ public class LoginWebDialogFragment extends DialogFragment {
         }
     }
 
+
+    /**
+     * Called when the library detects that the login process has been completed.
+     *
+     * @param loginInfo - a Map that contains information about the login process.
+     */
+    private void processLoginCompleted(Map<String, String> loginInfo) {
+        Activity parent = getActivity();
+        if (parent instanceof MercadoLibreActivity) {
+            ((MercadoLibreActivity) parent).onLoginCompleted(loginInfo);
+        } else {
+            throw new MeliException(BAD_LIBRARY_USAGE);
+        }
+    }
+
+
+    private void processErrorFound() {
+        Activity parent = getActivity();
+        if (parent instanceof MercadoLibreActivity) {
+            ((MercadoLibreActivity) parent).onLoginErrorDetected();
+        } else {
+            throw new MeliException(BAD_LIBRARY_USAGE);
+        }
+    }
 }

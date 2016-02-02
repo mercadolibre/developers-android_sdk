@@ -6,7 +6,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class UtilsTests {
 
@@ -28,10 +27,6 @@ public class UtilsTests {
         assertEquals(expectedUserId, params.get("user_id"));
         assertEquals(expectedDomains, params.get("domains"));
     }
-
-
-
-
 
 
 }

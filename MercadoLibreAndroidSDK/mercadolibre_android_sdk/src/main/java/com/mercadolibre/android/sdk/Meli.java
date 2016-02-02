@@ -2,12 +2,15 @@ package com.mercadolibre.android.sdk;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
@@ -15,6 +18,7 @@ import android.webkit.URLUtil;
 
 import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -64,6 +68,8 @@ public final class Meli {
     private static String meliApplicationId = null;
 
     private static String meliRedirectLoginUrl = null;
+
+    private static Identity meliIdentity = null;
 
 
     /**
@@ -298,5 +304,50 @@ public final class Meli {
         meliApplicationId = null;
         meliRedirectLoginUrl = null;
         isSDKInitialized = false;
+    }
+
+
+    /**
+     * Sets the {@link Identity} for the current session.
+     *
+     * @param loginInfo - the information related to the session.
+     */
+    static void setIdentity(@Nullable Map<String, String> loginInfo) {
+        if (loginInfo != null) {
+            meliIdentity = Identity.newInstance(loginInfo);
+        } else {
+            meliIdentity = null;
+        }
+    }
+
+
+    /**
+     * @return - the instance of {@link Identity} for the current session. Null
+     * if no identity has been created yet (might indicate that the user has not been
+     * authenticated yet).
+     */
+    public static
+    @Nullable
+    Identity getCurrentIdentity() {
+        return meliIdentity;
+    }
+
+
+    /**
+     * Starts the Login process by calling the proper SDK behavior. The {@link Activity} provided
+     * in this method will be used to start the {@link MercadoLibreActivity} with the proper settings
+     * for the login process and the {@link Activity#onActivityResult(int, int, Intent)} method will
+     * be called with the result code in {@link Activity#RESULT_OK} if the process is completed properly
+     * or the {@link Activity#RESULT_CANCELED} if an error is detected.
+     * If the process is completed properly, the SDK will provide the user's data in an {@link Identity}
+     * object that can be reached by the {@link Meli#getCurrentIdentity()} method.
+     *
+     * @param activityClient - an {@link Activity} that will be used as callback receiver. When the process
+     *                       is finished (whether is success or not) the {@link Activity#onActivityResult(int, int, Intent)}
+     *                       callback will be called with the proper result code.
+     * @param requestCode    - the request code used in the {@link Activity#startActivityForResult(Intent, int)} method.
+     */
+    public static void startLogin(@NonNull Activity activityClient, int requestCode) {
+        MercadoLibreActivity.login(activityClient, requestCode);
     }
 }

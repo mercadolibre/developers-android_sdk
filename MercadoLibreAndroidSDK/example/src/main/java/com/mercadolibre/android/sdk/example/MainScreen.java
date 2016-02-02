@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.mercadolibre.android.sdk.Meli;
-import com.mercadolibre.android.sdk.MercadoLibreActivity;
 
 /**
  * This is the home screen for the example application. In it, you will find all you
@@ -46,7 +45,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
         int viewId = v.getId();
         switch (viewId) {
             case R.id.btn_login_example:
-                Intent intent = new Intent(this, MercadoLibreActivity.class);
+                Intent intent = new Intent(this, LoginScreen.class);
                 startActivity(intent);
                 break;
             default:

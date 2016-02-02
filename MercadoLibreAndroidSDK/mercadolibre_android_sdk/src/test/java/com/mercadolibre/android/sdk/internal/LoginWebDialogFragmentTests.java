@@ -49,7 +49,6 @@ public class LoginWebDialogFragmentTests {
     @Test
     public void viewCreatedProperlyTest() {
         View fView = mLoginFragment.getView();
-
         if (fView != null) {
             View wbMeliLogin = fView.findViewById(R.id.wb_meli_login);
             View pgMeliLogin = fView.findViewById(R.id.pg_meli_login);
