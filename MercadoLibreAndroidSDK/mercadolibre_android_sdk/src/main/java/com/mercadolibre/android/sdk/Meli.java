@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.webkit.URLUtil;
 
@@ -60,6 +59,9 @@ public final class Meli {
     static final String INVALID_URL_FORMAT = "The redirect URI provided with the key " + LOGIN_REDIRECT_URL_PROPERTY +
             " has an invalid format. Please, refer to TODO 4";
 
+    //TODO 5
+    static final String SDK_NOT_INITIALIZED = "You need to call Meli.initializeSDK() in order to perform this action.";
+
 
     // Flag used to indicate when the SDK is initialized.
     private static boolean isSDKInitialized = false;
@@ -71,6 +73,16 @@ public final class Meli {
 
     private static Identity meliIdentity = null;
 
+
+    /**
+     * Sets the library in logging mode or not. If it's set to true,
+     * the library will log messages to Logcat with the {@link MeliLogger#TAG} tag.
+     *
+     * @param enabled - true if the SDK is set to log events, false any other case.
+     */
+    public static void setLoggingEnabled(boolean enabled) {
+        MeliLogger.DEBUG = enabled;
+    }
 
     /**
      * Performs the initialization of the library by verifying that all the
@@ -107,6 +119,7 @@ public final class Meli {
      * @return true if the SDK has been properly initialized, false any other case.
      */
     static boolean isSDKInitialized() {
+        MeliLogger.log("MeliSDK initialized: [application id is null? " + (meliApplicationId == null) + "; redirectUrl is null? " + (meliRedirectLoginUrl == null));
         return isSDKInitialized;
     }
 
@@ -286,12 +299,12 @@ public final class Meli {
 
 
     /**
-     * Creates a new instance of a {@link DialogFragment} that can be used to login the
+     * Creates a new instance of a {@link LoginWebDialogFragment} that can be used to login the
      * user using OAuth.
      *
      * @return - thew created instance.
      */
-    static DialogFragment getLoginDialogNewInstance() {
+    static LoginWebDialogFragment getLoginDialogNewInstance() {
         String loginUrl = Config.getLoginUrlForApplicationIdentifier(meliApplicationId);
         return LoginWebDialogFragment.newInstance(loginUrl, meliRedirectLoginUrl);
     }
@@ -348,6 +361,11 @@ public final class Meli {
      * @param requestCode    - the request code used in the {@link Activity#startActivityForResult(Intent, int)} method.
      */
     public static void startLogin(@NonNull Activity activityClient, int requestCode) {
-        MercadoLibreActivity.login(activityClient, requestCode);
+        MeliLogger.log("Meli#startLogin(" + activityClient.getClass().getName() + ", " + requestCode + ")");
+        if (isSDKInitialized()) {
+            MercadoLibreActivity.login(activityClient, requestCode);
+        } else {
+            throw new MeliException(SDK_NOT_INITIALIZED);
+        }
     }
 }

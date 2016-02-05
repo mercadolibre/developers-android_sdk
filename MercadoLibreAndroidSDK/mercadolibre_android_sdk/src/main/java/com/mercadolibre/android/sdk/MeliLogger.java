@@ -8,7 +8,7 @@ import android.util.Log;
 public final class MeliLogger {
 
 
-    public static final boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     public static final String TAG = "meli_sdk";
 

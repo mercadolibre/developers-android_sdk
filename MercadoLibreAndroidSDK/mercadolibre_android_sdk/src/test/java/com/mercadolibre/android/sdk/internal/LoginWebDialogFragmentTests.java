@@ -16,15 +16,10 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ActivityController;
 
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.LOLLIPOP, shadows=ExtendedShadowWebView.class)
+@Config(manifest = "src/main/AndroidManifest.xml", sdk = Build.VERSION_CODES.LOLLIPOP, shadows = ExtendedShadowWebView.class)
 @RunWith(RobolectricTestRunner.class)
 public class LoginWebDialogFragmentTests {
 
@@ -32,23 +27,21 @@ public class LoginWebDialogFragmentTests {
     private static final String FRAGMENT_TAG = "fragment";
     private ActivityController controller;
     private FragmentActivity activity;
-    private LoginWebDialogFragment mLoginFragment;
-
+    private FragmentManager fragmentManager;
 
     @Before
     public void setup() {
         controller = Robolectric.buildActivity(FragmentActivity.class);
         activity = (FragmentActivity) controller.create().start().resume().visible().get();
-
-        FragmentManager fm = activity.getSupportFragmentManager();
-        mLoginFragment = new LoginWebDialogFragment();
-        mLoginFragment.show(fm, FRAGMENT_TAG);
+        fragmentManager = activity.getSupportFragmentManager();
     }
 
 
     @Test
     public void viewCreatedProperlyTest() {
-        View fView = mLoginFragment.getView();
+        LoginWebDialogFragment loginFragment = new LoginWebDialogFragment();
+        loginFragment.show(fragmentManager, FRAGMENT_TAG);
+        View fView = loginFragment.getView();
         if (fView != null) {
             View wbMeliLogin = fView.findViewById(R.id.wb_meli_login);
             View pgMeliLogin = fView.findViewById(R.id.pg_meli_login);
@@ -58,6 +51,5 @@ public class LoginWebDialogFragmentTests {
             fail("The fragment's view is not created.");
         }
     }
-
 
 }

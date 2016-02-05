@@ -24,7 +24,7 @@
         <!-- Declare the MercadoLibreActivity as required by the SDK -->
         <activity
             android:name="com.mercadolibre.android.sdk.MercadoLibreActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 

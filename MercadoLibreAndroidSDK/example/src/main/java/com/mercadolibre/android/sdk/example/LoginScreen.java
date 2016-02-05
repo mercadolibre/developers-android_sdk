@@ -20,7 +20,11 @@ public class LoginScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_screen);
-        Meli.startLogin(this, REQUEST_CODE);
+
+        if(savedInstanceState == null) {
+            // ask the SDK to start the login process
+            Meli.startLogin(this, REQUEST_CODE);
+        }
     }
 
 
@@ -42,8 +46,8 @@ public class LoginScreen extends AppCompatActivity {
         Identity identity = Meli.getCurrentIdentity();
         if (identity != null) {
             ((TextView) findViewById(R.id.txt_user_id)).setText(getString(R.string.user_id_text, identity.getUserId()));
-            ((TextView) findViewById(R.id.txt_access_token)).setText(getString(R.string.access_token_text, identity.getAccessToken()));
-            ((TextView) findViewById(R.id.txt_expires_in)).setText(getString(R.string.expires_in_text, String.valueOf(identity.getExpirationTime())));
+            ((TextView) findViewById(R.id.txt_access_token)).setText(getString(R.string.access_token_text, identity.getAccessToken().getAccessTokenValue()));
+            ((TextView) findViewById(R.id.txt_expires_in)).setText(getString(R.string.expires_in_text, String.valueOf(identity.getAccessToken().getAccessTokenLifetime())));
         }
     }
 

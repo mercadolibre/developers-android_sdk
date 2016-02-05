@@ -1,7 +1,6 @@
 package com.mercadolibre.android.sdk.internal;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.net.http.SslError;
 import android.os.Bundle;
@@ -21,9 +20,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.mercadolibre.android.sdk.MeliException;
 import com.mercadolibre.android.sdk.MeliLogger;
-import com.mercadolibre.android.sdk.MercadoLibreActivity;
 import com.mercadolibre.android.sdk.R;
 
 import java.util.Map;
@@ -40,9 +37,25 @@ public final class LoginWebDialogFragment extends DialogFragment {
     private static final String URL_PARAM_KEY = "url_param_key";
     private static final String REDIRECT_URL_PARAM_KEY = "redirect_url_param_key";
 
-    static final String BAD_LIBRARY_USAGE = "Please, do not attempt to use this fragment from outside the MercadoLibre Android SDK"
-            + " You must call any of the methods from the Meli class in order to interact with this components";
 
+    // Interface designated as listener
+    public interface ILoginWebDialogListener {
+
+        /**
+         * Called when the login process is completed.
+         *
+         * @param loginInfo - the data associated with the login process.
+         */
+
+        void onLoginCompleted(Map<String, String> loginInfo);
+
+
+        /**
+         * Called when the login process has suffered an error in order to
+         * leave the process properly.
+         */
+        void onLoginErrorDetected();
+    }
 
     // View instance variable to control UI
     private WebView wbMeliLogin;
@@ -54,10 +67,41 @@ public final class LoginWebDialogFragment extends DialogFragment {
     // Redirect URL
     private String mRedirectUrl;
 
+    // map to hold info on the login process
+    private Map<String, String> mLoginInfo;
+
+
+    private boolean isErrorDetected = false;
+
+
+    private ILoginWebDialogListener mLoginProcessListener;
+
+
+    /**
+     * Empty class constructor
+     */
     public LoginWebDialogFragment() {
 
     }
 
+
+    public void setLoginListener(ILoginWebDialogListener listener) {
+        mLoginProcessListener = listener;
+        if (mLoginInfo != null) {
+            mLoginProcessListener.onLoginCompleted(mLoginInfo);
+            mLoginInfo = null;
+        }
+
+        if (isErrorDetected) {
+            mLoginProcessListener.onLoginErrorDetected();
+            isErrorDetected = false;
+        }
+    }
+
+
+    public void removeLoginListener() {
+        mLoginProcessListener = null;
+    }
 
     public static
     @NonNull
@@ -81,9 +125,15 @@ public final class LoginWebDialogFragment extends DialogFragment {
             setRetainInstance(true);
 
             Bundle args = getArguments();
-            if (args != null && args.containsKey(URL_PARAM_KEY)) {
-                mUrl = args.getString(URL_PARAM_KEY);
-                mRedirectUrl = args.getString(REDIRECT_URL_PARAM_KEY);
+            if (args == null) {
+                dismiss();
+            } else {
+                if (args.containsKey(URL_PARAM_KEY)) {
+                    mUrl = args.getString(URL_PARAM_KEY);
+                    mRedirectUrl = args.getString(REDIRECT_URL_PARAM_KEY);
+                } else {
+                    dismiss();
+                }
             }
         }
     }
@@ -160,6 +210,7 @@ public final class LoginWebDialogFragment extends DialogFragment {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             MeliLogger.log("LOADING URL: " + url);
+            //TODO can we handle the case when the redirect url is invalid?
             if (url.startsWith(LoginWebDialogFragment.this.mRedirectUrl)) {
                 MeliLogger.log("Redirect URL: " + url);
                 Map<String, String> params = Utils.parseUrl(url);
@@ -168,9 +219,11 @@ public final class LoginWebDialogFragment extends DialogFragment {
                 } else {
                     processErrorFound();
                 }
-
                 return true;
+            } else if(url.contains("error")) {
+                processErrorFound();
             }
+            //TODO here we might need to handle all possible error or unhandled re-directions.
             return false;
         }
 
@@ -212,21 +265,28 @@ public final class LoginWebDialogFragment extends DialogFragment {
      * @param loginInfo - a Map that contains information about the login process.
      */
     private void processLoginCompleted(Map<String, String> loginInfo) {
-        Activity parent = getActivity();
-        if (parent instanceof MercadoLibreActivity) {
-            ((MercadoLibreActivity) parent).onLoginCompleted(loginInfo);
+        if (mLoginProcessListener != null) {
+            mLoginProcessListener.onLoginCompleted(loginInfo);
         } else {
-            throw new MeliException(BAD_LIBRARY_USAGE);
+            mLoginInfo = loginInfo;
         }
     }
 
 
     private void processErrorFound() {
-        Activity parent = getActivity();
-        if (parent instanceof MercadoLibreActivity) {
-            ((MercadoLibreActivity) parent).onLoginErrorDetected();
+        if (mLoginProcessListener != null) {
+            mLoginProcessListener.onLoginErrorDetected();
         } else {
-            throw new MeliException(BAD_LIBRARY_USAGE);
+            isErrorDetected = true;
         }
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        if (getDialog() != null && getRetainInstance()) {
+            getDialog().setDismissMessage(null);
+        }
+        super.onDestroyView();
     }
 }

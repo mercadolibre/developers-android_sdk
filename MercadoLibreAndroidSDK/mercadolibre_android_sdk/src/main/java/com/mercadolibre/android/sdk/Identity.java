@@ -16,8 +16,7 @@ public final class Identity {
     private static final String EXPIRES_IN_KEY = "expires_in";
     private static final String USER_ID_KEY = "user_id";
 
-    private String mAccessTokenValue;
-    private long mExpiresInValue;
+    private AccessToken mAccessToken;
     private String mClientIdentifier;
 
 
@@ -29,8 +28,7 @@ public final class Identity {
      * @param clientIdentifier - the identifier of the client authenticated.
      */
     private Identity(String accessToken, long expiresIn, String clientIdentifier) {
-        mAccessTokenValue = accessToken;
-        mExpiresInValue = expiresIn;
+        mAccessToken = new AccessToken(accessToken, expiresIn);
         mClientIdentifier = clientIdentifier;
     }
 
@@ -58,13 +56,8 @@ public final class Identity {
     }
 
 
-    public String getAccessToken() {
-        return mAccessTokenValue;
-    }
-
-
-    public long getExpirationTime() {
-        return mExpiresInValue;
+    public AccessToken getAccessToken() {
+        return mAccessToken;
     }
 
 

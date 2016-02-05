@@ -24,6 +24,9 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
         // prepare the UI.
         setupUi();
 
+        // Set SDK to log events
+        Meli.setLoggingEnabled(true);
+
         // Initialize the MercadoLibre SDK
         Meli.initializeSDK(getApplicationContext());
 
