@@ -90,3 +90,6 @@ The SDK provides functionallity to authorize your users to use your application 
       
 
 
+## Examples
+
+Within the code in the Github repository, there is an example project that contains examples of how to use the SDK.
