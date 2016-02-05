@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/jpperetti/Repositories/MELI_developers/Android/MercadoLibreAndroidSDK/example/build/intermediates/exploded-aar/MercadoLibreAndroidSDK/mercadolibre_android_sdk/unspecified/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="7b6b806d11af75d39fbea0e80cc44d3fa4f93688">
+        <dex dex="/Users/jpperetti/Repositories/MELI_developers/Android/MercadoLibreAndroidSDK/example/build/intermediates/pre-dexed/debug/MercadoLibreAndroidSDK-mercadolibre_android_sdk-unspecified_feef7382ede71cb90a86a7ecad41d5f8df2715cb.jar" />
+    </item>
+
+</items>

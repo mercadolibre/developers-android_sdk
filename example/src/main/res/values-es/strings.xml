@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Meli Android SDK</string>
+
+    <!-- Main Screen -->
+    <string name="txt_examples">Aquí puedes encontrar una lista de ejemplos que te ayudarán a integrar el SDK de MercadoLibre para Android en tu app. </string>
+    <string name="btn_login_examples">Ingresar/Registrar Usuario</string>
+</resources>
