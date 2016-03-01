@@ -119,6 +119,12 @@ ApiResponse r = Meli.post("/items", bodyJsonAsString , context);
 ApiResponse r = Meli.put("/items", bodyJsonAsString , context);
 ```
 
+## Making DELETE calls
+
+```java
+ApiResponse r = Meli.delete("/items", bodyJsonAsString , context);
+```
+
 ## Examples
 
 Within the code in the Github repository, there is an example project that contains examples of how to use the SDK.
