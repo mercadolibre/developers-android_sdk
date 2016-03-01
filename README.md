@@ -90,3 +90,35 @@ The SDK provides functionallity to authorize your users to use your application 
       
 
 
+## Making GET calls
+
+You have two basic ways to do a GET call:
+
+### Anonymous
+
+```java
+ApiResponse r = Meli.get("/users/123");
+```
+
+### Authenticated
+
+```java
+ApiResponse r = Meli.getAuth("/users/123/addresses", context);
+```
+
+
+## Making POST calls
+
+```java
+ApiResponse r = Meli.post("/items", bodyJsonAsString , context);
+```
+
+## Making PUT calls
+
+```java
+ApiResponse r = Meli.put("/items", bodyJsonAsString , context);
+```
+
+## Examples
+
+Within the code in the Github repository, there is an example project that contains examples of how to use the SDK.
