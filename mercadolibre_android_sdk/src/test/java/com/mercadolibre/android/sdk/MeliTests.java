@@ -17,7 +17,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -265,45 +264,5 @@ public class MeliTests {
         }
     }
 
-
-    @Test
-    public void initializeSDK() {
-        try {
-
-            // MercadoLibreActivity present
-            ComponentName componentName = new ComponentName(mContextMock, MercadoLibreActivity.class);
-            when(mPackageManagerMock.getActivityInfo(componentName, PackageManager.GET_ACTIVITIES))
-                    .thenAnswer(new Answer<ActivityInfo>() {
-                        @Override
-                        public ActivityInfo answer(InvocationOnMock invocation) throws Throwable {
-                            return new ActivityInfo();
-                        }
-                    });
-
-            // Internet permission
-            when(mContextMock.checkCallingOrSelfPermission(Manifest.permission.INTERNET))
-                    .thenReturn(PackageManager.PERMISSION_GRANTED);
-
-            // Application identifier
-            when(mPackageManagerMock.getApplicationInfo(mContextMock.getPackageName(), PackageManager.GET_META_DATA))
-                    .thenReturn(mAppInfoMock);
-            when(mMetadataMock.get(Meli.APPLICATION_ID_PROPERTY)).thenReturn(MOCK_APP_ID);
-
-            // Redirect URL
-            when(mMetadataMock.get(Meli.LOGIN_REDIRECT_URL_PROPERTY)).thenReturn(VALID_REDIRECT_URL);
-
-            mAppInfoMock.metaData = mMetadataMock;
-
-            Meli.initializeSDK(mContextMock);
-
-            assertTrue(Meli.isSDKInitialized());
-            assertEquals(MOCK_APP_ID, Meli.getApplicationIdProperty());
-            assertEquals(VALID_REDIRECT_URL, Meli.getLoginRedirectUrlProperty());
-
-        } catch (Exception e) {
-            fail();
-            System.out.print(e.getMessage());
-        }
-    }
 
 }

@@ -1,6 +1,9 @@
 package com.mercadolibre.android.sdk;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.Map;
@@ -23,12 +26,11 @@ public final class Identity {
     /**
      * Private class constructor to avoid external instantiation.
      *
-     * @param accessToken      - the access token that verifies the identity of the application.
-     * @param expiresIn        - the lifetime of the access token.
-     * @param clientIdentifier - the identifier of the client authenticated.
+     * @param accessToken      - the {@link AccessToken} for this identity.
+     * @param clientIdentifier -the identifier of the user.
      */
-    private Identity(String accessToken, long expiresIn, String clientIdentifier) {
-        mAccessToken = new AccessToken(accessToken, expiresIn);
+    private Identity(AccessToken accessToken, String clientIdentifier) {
+        mAccessToken = accessToken;
         mClientIdentifier = clientIdentifier;
     }
 
@@ -52,7 +54,8 @@ public final class Identity {
                 expiresInValue = 0;
             }
         }
-        return new Identity(accessToken, expiresInValue, clientIdentifier);
+        AccessToken accessTokenInstance = new AccessToken(accessToken, expiresInValue);
+        return new Identity(accessTokenInstance, clientIdentifier);
     }
 
 
@@ -64,5 +67,33 @@ public final class Identity {
     public String getUserId() {
         return mClientIdentifier;
     }
+
+
+    @NonNull
+    private static SharedPreferences getPreferencesName(Context context) {
+        return context.getSharedPreferences(context.getPackageName() + ".identity", Context.MODE_PRIVATE);
+    }
+
+    void store(@NonNull Context context) {
+        SharedPreferences.Editor editor = getPreferencesName(context).edit();
+        getAccessToken().store(context);
+        editor.putString(USER_ID_KEY, getUserId());
+        editor.apply();
+    }
+
+    @Nullable
+    static Identity restore(@NonNull Context context) {
+        Identity identity = null;
+        AccessToken accessToken = AccessToken.restore(context);
+        if (!TextUtils.isEmpty(accessToken.getAccessTokenValue())) {
+            String userId = getPreferencesName(context).getString(USER_ID_KEY, null);
+            if (userId != null) {
+                identity = new Identity(accessToken, userId);
+            }
+        }
+
+        return identity;
+    }
+
 
 }

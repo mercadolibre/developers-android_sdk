@@ -4,4 +4,15 @@
     <!-- Main Screen -->
     <string name="txt_examples">Aquí puedes encontrar una lista de ejemplos que te ayudarán a integrar el SDK de MercadoLibre para Android en tu app. </string>
     <string name="btn_login_examples">Ingresar/Registrar Usuario</string>
+    <string name="btn_simple_get">Get</string>
+    <string name="btn_auth_get">Get (auntenticado)</string>
+    <string name="btn_simple_post">Post</string>
+    <string name="btn_simple_put">Put</string>
+    <string name="btn_simple_delete">Delete</string>
+
+    <!-- Result Screen -->
+    <string name="result_title">Resultado</string>
+    <string name="result_code">Código de resultado: %1$s</string>
+    <string name="result_content">Contenido: %1$s</string>
+
 </resources>

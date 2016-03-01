@@ -1,5 +1,7 @@
 package com.mercadolibre.android.sdk;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 /**
@@ -8,6 +10,9 @@ import android.support.annotation.NonNull;
  */
 public final class AccessToken {
 
+
+    private static final String ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
+    private static final String EXPIRES_IN_KEY = "EXPIRES_IN_KEY";
 
     private String mAccessTokenValue;
     private long mExpiresInValue;
@@ -36,6 +41,25 @@ public final class AccessToken {
      */
     public long getAccessTokenLifetime() {
         return mExpiresInValue;
+    }
+
+
+    @NonNull
+    private static SharedPreferences getPreferencesName(Context context) {
+        return context.getSharedPreferences(context.getPackageName() + ".access_token", Context.MODE_PRIVATE);
+    }
+
+    void store(@NonNull Context context) {
+        SharedPreferences.Editor editor = getPreferencesName(context).edit();
+        editor.putString(ACCESS_TOKEN_KEY, getAccessTokenValue());
+        editor.putLong(EXPIRES_IN_KEY, getAccessTokenLifetime());
+        editor.apply();
+    }
+
+    @NonNull
+    static AccessToken restore(@NonNull Context context) {
+        SharedPreferences preferences = getPreferencesName(context);
+        return new AccessToken(preferences.getString(ACCESS_TOKEN_KEY, ""), preferences.getLong(EXPIRES_IN_KEY, 0));
     }
 
 }

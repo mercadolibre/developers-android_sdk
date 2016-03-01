@@ -67,14 +67,14 @@ public final class MercadoLibreActivity extends FragmentActivity {
     private LoginWebDialogFragment.ILoginWebDialogListener mLoginListener = new LoginWebDialogFragment.ILoginWebDialogListener() {
         @Override
         public void onLoginCompleted(Map<String, String> loginInfo) {
-            Meli.setIdentity(loginInfo);
+            Meli.setIdentity(loginInfo, MercadoLibreActivity.this);
             setResult(RESULT_OK);
             finish();
         }
 
         @Override
         public void onLoginErrorDetected() {
-            Meli.setIdentity(null);
+            Meli.setIdentity(null, MercadoLibreActivity.this);
             setResult(RESULT_CANCELED);
             finish();
         }

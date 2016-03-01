@@ -12,9 +12,14 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.webkit.URLUtil;
 
+import com.mercadolibre.android.sdk.internal.HttpDelete;
+import com.mercadolibre.android.sdk.internal.HttpGet;
+import com.mercadolibre.android.sdk.internal.HttpPost;
+import com.mercadolibre.android.sdk.internal.HttpPut;
 import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
 
 import java.util.Map;
@@ -112,6 +117,7 @@ public final class Meli {
         // OK, if the application identifier is present, the init is done
         isSDKInitialized = meliApplicationId != null && meliRedirectLoginUrl != null;
 
+        loadIdentity(applicationContext);
     }
 
 
@@ -324,15 +330,28 @@ public final class Meli {
      * Sets the {@link Identity} for the current session.
      *
      * @param loginInfo - the information related to the session.
+     * @param context   - a context instance
      */
-    static void setIdentity(@Nullable Map<String, String> loginInfo) {
+    static void setIdentity(@Nullable Map<String, String> loginInfo, @NonNull Context context) {
         if (loginInfo != null) {
             meliIdentity = Identity.newInstance(loginInfo);
+            meliIdentity.store(context);
         } else {
             meliIdentity = null;
         }
     }
 
+
+    /**
+     * Loads the instance of {@link Identity} from the storage (if any)
+     *
+     * @param context - a Context instance
+     * @return - true if it has been possible load the identity, false any other case.
+     */
+    private static boolean loadIdentity(@NonNull Context context) {
+        meliIdentity = Identity.restore(context);
+        return meliIdentity != null;
+    }
 
     /**
      * @return - the instance of {@link Identity} for the current session. Null
@@ -354,18 +373,157 @@ public final class Meli {
      * or the {@link Activity#RESULT_CANCELED} if an error is detected.
      * If the process is completed properly, the SDK will provide the user's data in an {@link Identity}
      * object that can be reached by the {@link Meli#getCurrentIdentity()} method.
+     * Note that if the login process has been executed successfully at least once on the device, then
+     * a false return value occurs and the process is skipped. At this point, you can retrieve the Identity
+     * of the logged user from the method {@link Meli#getCurrentIdentity()}.
      *
      * @param activityClient - an {@link Activity} that will be used as callback receiver. When the process
      *                       is finished (whether is success or not) the {@link Activity#onActivityResult(int, int, Intent)}
      *                       callback will be called with the proper result code.
      * @param requestCode    - the request code used in the {@link Activity#startActivityForResult(Intent, int)} method.
+     * @return - true if the login process has started. If the login process has ben executed successfully at least once
+     * on the device, it skipped and the return value is false.
      */
-    public static void startLogin(@NonNull Activity activityClient, int requestCode) {
+    public static boolean startLogin(@NonNull Activity activityClient, int requestCode) {
+        boolean loginStarted = true;
         MeliLogger.log("Meli#startLogin(" + activityClient.getClass().getName() + ", " + requestCode + ")");
         if (isSDKInitialized()) {
-            MercadoLibreActivity.login(activityClient, requestCode);
+            //first, attempt to load data from storage
+            if (loadIdentity(activityClient)) {
+                loginStarted = false;
+            } else {
+                MercadoLibreActivity.login(activityClient, requestCode);
+            }
         } else {
             throw new MeliException(SDK_NOT_INITIALIZED);
         }
+        return loginStarted;
     }
+
+
+    /**
+     * Performs a get access to a remote resource exposed by the MercadoLibre API. This method should
+     * not be executed in the UI thread since it performs a network operation.
+     *
+     * @param urlAsString - the url of the API to access.
+     * @return - the {@link ApiResponse} retrieved from the API.
+     */
+    @WorkerThread
+    @NonNull
+    public static ApiResponse get(@NonNull String urlAsString) {
+        return new HttpGet().execute(urlAsString);
+    }
+
+
+    /**
+     * Performs an authorized get access to a remote resource exposed by the MercadoLibre API. This method needs
+     * to be used when the remote resource being access uses the access token to authorize the user. Should
+     * not be executed in the UI thread since it performs a network operation.
+     *
+     * @param urlAsString - the url of the API to access.
+     * @param context     -  a Context instance.
+     * @return - the {@link ApiResponse} retrieved from the API.
+     */
+    @WorkerThread
+    @Nullable
+    public static ApiResponse getAuth(@NonNull String urlAsString, @NonNull Context context) {
+        if (meliIdentity == null) {
+            loadIdentity(context);
+        }
+
+        if (meliIdentity == null) {
+            throw new IllegalStateException("You need to perform a login process before using this method.");
+        }
+
+        String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
+        urlAsString += "?access_token=" + accessToken;
+
+        return new HttpGet().execute(urlAsString);
+    }
+
+
+    /**
+     * Performs a POST operation to the remote resource exposed by the MercadoLibre API. All POST operations
+     * need the user to be previously authorized, that's why you need to authorize the user by using
+     * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
+     * not be executed in the UI thread since it performs a network operation.
+     *
+     * @param urlAsString - the url of the API to access.
+     * @param message     - the message to POST to the API.
+     * @param context     -  a Context instance.
+     * @return - the {@link ApiResponse} retrieved from the API.
+     */
+    @WorkerThread
+    @NonNull
+    public static ApiResponse post(@NonNull String urlAsString, @NonNull String message, @NonNull Context context) {
+        if (meliIdentity == null) {
+            loadIdentity(context);
+        }
+
+        if (meliIdentity == null) {
+            throw new IllegalStateException("You need to perform a login process before using this method.");
+        }
+
+        String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
+        urlAsString += "?access_token=" + accessToken;
+        return new HttpPost(message).execute(urlAsString);
+    }
+
+
+    /**
+     * Performs a PUT operation to the remote resource exposed by the MercadoLibre API. All PUT operations
+     * need the user to be previously authorized, that's why you need to authorize the user by using
+     * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
+     * not be executed in the UI thread since it performs a network operation.
+     *
+     * @param urlAsString - the url of the API to access.
+     * @param message     - the message to POST to the API.
+     * @param context     -  a Context instance.
+     * @return - the {@link ApiResponse} retrieved from the API.
+     */
+    @WorkerThread
+    @NonNull
+    public static ApiResponse put(@NonNull String urlAsString, @NonNull String message, @NonNull Context context) {
+        if (meliIdentity == null) {
+            loadIdentity(context);
+        }
+
+        if (meliIdentity == null) {
+            throw new IllegalStateException("You need to perform a login process before using this method.");
+        }
+
+        String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
+        urlAsString += "?access_token=" + accessToken;
+        return new HttpPut(message).execute(urlAsString);
+    }
+
+
+    /**
+     * Performs a DELETE operation to the remote resource exposed by the MercadoLibre API. All DELETE operations
+     * need the user to be previously authorized, that's why you need to authorize the user by using
+     * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
+     * not be executed in the UI thread since it performs a network operation.
+     *
+     * @param urlAsString - the url of the API to access.
+     * @param message     - the message to POST to the API.
+     * @param context     -  a Context instance.
+     * @return - the {@link ApiResponse} retrieved from the API.
+     */
+    @WorkerThread
+    @NonNull
+    public static ApiResponse delete(@NonNull String urlAsString, @NonNull String message, @NonNull Context context) {
+        if (meliIdentity == null) {
+            loadIdentity(context);
+        }
+
+        if (meliIdentity == null) {
+            throw new IllegalStateException("You need to perform a login process before using this method.");
+        }
+
+        String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
+        urlAsString += "?access_token=" + accessToken;
+        return new HttpDelete(message).execute(urlAsString);
+    }
+
+
 }
