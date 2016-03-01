@@ -405,13 +405,13 @@ public final class Meli {
      * Performs a get access to a remote resource exposed by the MercadoLibre API. This method should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param urlAsString - the url of the API to access.
+     * @param path - the path of the resource to access.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse get(@NonNull String urlAsString) {
-        return new HttpGet().execute(urlAsString);
+    public static ApiResponse get(@NonNull String path) {
+        return new HttpGet().execute(path);
     }
 
 
@@ -420,13 +420,13 @@ public final class Meli {
      * to be used when the remote resource being access uses the access token to authorize the user. Should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param urlAsString - the url of the API to access.
-     * @param context     -  a Context instance.
+     * @param path    - the path of the resource to access.
+     * @param context -  a Context instance.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @Nullable
-    public static ApiResponse getAuth(@NonNull String urlAsString, @NonNull Context context) {
+    public static ApiResponse getAuth(@NonNull String path, @NonNull Context context) {
         if (meliIdentity == null) {
             loadIdentity(context);
         }
@@ -436,9 +436,9 @@ public final class Meli {
         }
 
         String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
-        urlAsString += "?access_token=" + accessToken;
+        path += "?access_token=" + accessToken;
 
-        return new HttpGet().execute(urlAsString);
+        return new HttpGet().execute(path);
     }
 
 
@@ -448,14 +448,14 @@ public final class Meli {
      * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param urlAsString - the url of the API to access.
-     * @param message     - the message to POST to the API.
-     * @param context     -  a Context instance.
+     * @param path    - the path of the resource to access.
+     * @param message - the message to POST to the API.
+     * @param context -  a Context instance.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse post(@NonNull String urlAsString, @NonNull String message, @NonNull Context context) {
+    public static ApiResponse post(@NonNull String path, @NonNull String message, @NonNull Context context) {
         if (meliIdentity == null) {
             loadIdentity(context);
         }
@@ -465,8 +465,8 @@ public final class Meli {
         }
 
         String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
-        urlAsString += "?access_token=" + accessToken;
-        return new HttpPost(message).execute(urlAsString);
+        path += "?access_token=" + accessToken;
+        return new HttpPost(message).execute(path);
     }
 
 
@@ -476,14 +476,14 @@ public final class Meli {
      * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param urlAsString - the url of the API to access.
+     * @param path - the path of the resource to access.
      * @param message     - the message to POST to the API.
      * @param context     -  a Context instance.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse put(@NonNull String urlAsString, @NonNull String message, @NonNull Context context) {
+    public static ApiResponse put(@NonNull String path, @NonNull String message, @NonNull Context context) {
         if (meliIdentity == null) {
             loadIdentity(context);
         }
@@ -493,8 +493,8 @@ public final class Meli {
         }
 
         String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
-        urlAsString += "?access_token=" + accessToken;
-        return new HttpPut(message).execute(urlAsString);
+        path += "?access_token=" + accessToken;
+        return new HttpPut(message).execute(path);
     }
 
 
@@ -504,14 +504,14 @@ public final class Meli {
      * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param urlAsString - the url of the API to access.
+     * @param path - the path of the resource to access.
      * @param message     - the message to POST to the API.
      * @param context     -  a Context instance.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse delete(@NonNull String urlAsString, @NonNull String message, @NonNull Context context) {
+    public static ApiResponse delete(@NonNull String path, @NonNull String message, @NonNull Context context) {
         if (meliIdentity == null) {
             loadIdentity(context);
         }
@@ -521,8 +521,8 @@ public final class Meli {
         }
 
         String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
-        urlAsString += "?access_token=" + accessToken;
-        return new HttpDelete(message).execute(urlAsString);
+        path += "?access_token=" + accessToken;
+        return new HttpDelete(message).execute(path);
     }
 
 

@@ -7,8 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.mercadolibre.android.sdk.ApiResponse;
+import com.mercadolibre.android.sdk.Identity;
 import com.mercadolibre.android.sdk.Meli;
 
 /**
@@ -68,8 +70,12 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        String userId = Meli.getCurrentIdentity().getUserId();
-                        return Meli.get("https://api.mercadolibre.com/users/" + userId);
+                        String userId = getUserID();
+                        if (userId != null) {
+                            return Meli.get("/users/" + userId);
+                        } else {
+                            return null;
+                        }
                     }
                 });
                 break;
@@ -77,8 +83,13 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        String userId = Meli.getCurrentIdentity().getUserId();
-                        return Meli.getAuth("https://api.mercadolibre.com/users/" + userId + "/addresses", MainScreen.this);
+                        String userId = getUserID();
+                        if (userId != null) {
+                            return Meli.getAuth("/users/" + userId + "/addresses", MainScreen.this);
+                        } else {
+                            return null;
+                        }
+
                     }
                 });
                 break;
@@ -86,7 +97,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        return Meli.post("https://api.mercadolibre.com/items", ITEM_JSON, MainScreen.this);
+                        return Meli.post("/items", ITEM_JSON, MainScreen.this);
                     }
                 });
                 break;
@@ -94,7 +105,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        return Meli.put("https://api.mercadolibre.com/items/MLA608718494", PUT_JSON, MainScreen.this);
+                        return Meli.put("/items/MLA608718494", PUT_JSON, MainScreen.this);
                     }
                 });
                 break;
@@ -104,6 +115,15 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
 
     }
 
+
+    private String getUserID() {
+        Identity identity = Meli.getCurrentIdentity();
+        if (identity == null) {
+            return null;
+        } else {
+            return identity.getUserId();
+        }
+    }
 
     private class GetAsycTask extends AsyncTask<Command, Void, ApiResponse> {
 
@@ -115,8 +135,12 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
         @Override
         protected void onPostExecute(ApiResponse apiResponse) {
             findViewById(R.id.pg_loading).setVisibility(View.GONE);
-            ResultDialogFragment fragment = ResultDialogFragment.newInstance(apiResponse);
-            fragment.show(getSupportFragmentManager(), "RESULT");
+            if(apiResponse == null) {
+                Toast.makeText(MainScreen.this, "Authenticate first!!!", Toast.LENGTH_SHORT).show();
+            } else {
+                ResultDialogFragment fragment = ResultDialogFragment.newInstance(apiResponse);
+                fragment.show(getSupportFragmentManager(), "RESULT");
+            }
         }
 
         @Override

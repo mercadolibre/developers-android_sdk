@@ -33,6 +33,8 @@ public abstract class HttpOperation {
     // 15 seconds as default
     private static final int DEFAULT_CONNECTION_TIMEOUT = 15000;
 
+    private static final String MELI_API_URL = "https://api.mercadolibre.com";
+
 
     protected final int mConnectTimeout;
     protected final int mReadTimeout;
@@ -61,17 +63,17 @@ public abstract class HttpOperation {
     /**
      * Performs a get access to the MercadoLibre's API.
      *
-     * @param urlAsString - the URL to access to as a String object.
+     * @param path - the path of the resource to access.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @NonNull
-    public ApiResponse execute(@NonNull String urlAsString) {
+    public ApiResponse execute(@NonNull String path) {
         ApiResponse apiResponse;
         try {
-            URL url = new URL(urlAsString);
+            URL url = new URL(MELI_API_URL + path);
             apiResponse = execute(url);
         } catch (MalformedURLException ex) {
-            apiResponse = ApiResponse.newErrorResponseWithException(new MeliException("Invalid URL: " + urlAsString, ex));
+            apiResponse = ApiResponse.newErrorResponseWithException(new MeliException("Invalid URL: " + path, ex));
         }
 
         return apiResponse;
