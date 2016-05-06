@@ -9,6 +9,7 @@
     <string name="btn_simple_post">Post</string>
     <string name="btn_simple_put">Put</string>
     <string name="btn_simple_delete">Delete</string>
+    <string name="btn_navigate_service">Service Demo</string>
 
 
     <!-- Login Screen -->

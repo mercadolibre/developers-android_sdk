@@ -56,6 +56,9 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
 
         Button btnPut = (Button) findViewById(R.id.btn_simple_put);
         btnPut.setOnClickListener(this);
+
+        Button btnService = (Button) findViewById(R.id.btn_navigate_service);
+        btnService.setOnClickListener(this);
     }
 
     @Override
@@ -109,6 +112,9 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                     }
                 });
                 break;
+
+            case R.id.btn_navigate_service:
+                startActivity(new Intent(this, ServiceScreen.class));
             default:
                 break;
         }
@@ -135,7 +141,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
         @Override
         protected void onPostExecute(ApiResponse apiResponse) {
             findViewById(R.id.pg_loading).setVisibility(View.GONE);
-            if(apiResponse == null) {
+            if (apiResponse == null) {
                 Toast.makeText(MainScreen.this, "Authenticate first!!!", Toast.LENGTH_SHORT).show();
             } else {
                 ResultDialogFragment fragment = ResultDialogFragment.newInstance(apiResponse);
