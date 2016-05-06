@@ -19,6 +19,7 @@
         </activity>
 
         <activity android:name=".LoginScreen" />
+        <activity android:name=".ServiceScreen"/>
 
 
         <!-- Declare the MercadoLibreActivity as required by the SDK -->
@@ -38,6 +39,8 @@
         <meta-data
             android:name="com.mercadolibre.android.sdk.RedirectUrl"
             android:value="@string/meli_redirect_uri" />
+
+        <service android:name="com.mercadolibre.android.sdk.internal.MeliApiService"/>
 
     </application>
 

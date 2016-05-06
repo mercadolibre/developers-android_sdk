@@ -46,14 +46,6 @@
             android:layout_margin="10dp"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btn_login_example"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/main_screen_margins"
-            android:layout_marginRight="@dimen/main_screen_margins"
-            android:text="@string/btn_login_examples" />
-
 
         <Button
             android:id="@+id/btn_simple_get"
@@ -94,15 +86,6 @@
             android:layout_marginLeft="@dimen/main_screen_margins"
             android:layout_marginRight="@dimen/main_screen_margins"
             android:text="@string/btn_simple_delete" />
-
-        <Button
-            android:id="@+id/btn_navigate_service"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/main_screen_margins"
-            android:layout_marginRight="@dimen/main_screen_margins"
-            android:text="@string/btn_navigate_service" />
-
 
     </LinearLayout>
 
