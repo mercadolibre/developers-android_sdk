@@ -16,10 +16,13 @@ import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.webkit.URLUtil;
 
+import com.mercadolibre.android.sdk.internal.ApiPoolManager;
+import com.mercadolibre.android.sdk.internal.ApiRequestListener;
 import com.mercadolibre.android.sdk.internal.HttpDelete;
 import com.mercadolibre.android.sdk.internal.HttpGet;
 import com.mercadolibre.android.sdk.internal.HttpPost;
 import com.mercadolibre.android.sdk.internal.HttpPut;
+import com.mercadolibre.android.sdk.internal.HttpRequestParameters;
 import com.mercadolibre.android.sdk.internal.LoginWebDialogFragment;
 
 import java.util.Map;
@@ -364,6 +367,16 @@ public final class Meli {
         return meliIdentity;
     }
 
+    public static
+    @Nullable
+    Identity fetchMeliIdentity(@NonNull Context context) {
+        validateContextNull(context);
+        if (meliIdentity == null) {
+            loadIdentity(context);
+        }
+        return meliIdentity;
+    }
+
 
     /**
      * Starts the Login process by calling the proper SDK behavior. The {@link Activity} provided
@@ -414,21 +427,32 @@ public final class Meli {
         return new HttpGet().execute(path);
     }
 
+    /**
+     * Proxy method that performs a get access to a remote resource exposed by the MercadoLibre API,
+     * on a worker thread.
+     *
+     * @param path     - the path of the resource to access.
+     * @param listener - listener that will receive the result of the request.
+     */
+    public static void asyncGet(@NonNull String path, ApiRequestListener listener) {
+        ApiPoolManager.requestApi(HttpRequestParameters.createGetParameters(path, null), listener);
+    }
+
 
     /**
      * Performs an authorized get access to a remote resource exposed by the MercadoLibre API. This method needs
      * to be used when the remote resource being access uses the access token to authorize the user. Should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param path    - the path of the resource to access.
-     * @param context -  a Context instance.
+     * @param path     - the path of the resource to access.
+     * @param identity - user information of the current session.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @Nullable
-    public static ApiResponse getAuth(@NonNull String path, @NonNull Context context) {
+    public static ApiResponse getAuth(@NonNull String path, Identity identity) {
         if (meliIdentity == null) {
-            loadIdentity(context);
+            meliIdentity = identity;
         }
 
         if (meliIdentity == null) {
@@ -441,6 +465,19 @@ public final class Meli {
         return new HttpGet().execute(path);
     }
 
+    /**
+     * Proxy method that performs an authorized get access to a remote resource exposed by the MercadoLibre API,
+     * on a worker thread. This method needs to be used when the remote resource being access uses the access
+     * token to authorize the user.
+     *
+     * @param path     - the path of the resource to access.
+     * @param identity - user information of the current session.
+     * @param listener - listener that will receive the result of the request.
+     */
+    public static void asyncGetAuth(@NonNull String path, Identity identity, ApiRequestListener listener) {
+        ApiPoolManager.requestApi(HttpRequestParameters.createAuthenticatedGetParameters(path, identity), listener);
+    }
+
 
     /**
      * Performs a POST operation to the remote resource exposed by the MercadoLibre API. All POST operations
@@ -448,16 +485,16 @@ public final class Meli {
      * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param path    - the path of the resource to access.
-     * @param message - the message to POST to the API.
-     * @param context -  a Context instance.
+     * @param path     - the path of the resource to access.
+     * @param message  - the message to POST to the API.
+     * @param identity - user information of the current session.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse post(@NonNull String path, @NonNull String message, @NonNull Context context) {
+    public static ApiResponse post(@NonNull String path, @NonNull String message, Identity identity) {
         if (meliIdentity == null) {
-            loadIdentity(context);
+            meliIdentity = identity;
         }
 
         if (meliIdentity == null) {
@@ -469,6 +506,20 @@ public final class Meli {
         return new HttpPost(message).execute(path);
     }
 
+    /**
+     * Proxy method that performs a POST operation to the remote resource exposed by the MercadoLibre API,
+     * on a worker thread. All POST operations need the user to be previously authorized, that's why you
+     * need to authorize the user by using {@link Meli#startLogin(Activity, int)} before using this method.
+     *
+     * @param path     - the path of the resource to access.
+     * @param message  - the message to POST to the API.
+     * @param identity - user information of the current session.
+     * @param listener - listener that will receive the result of the request.
+     */
+    public static void asyncPost(@NonNull String path, @NonNull String message, Identity identity, ApiRequestListener listener) {
+        ApiPoolManager.requestApi(HttpRequestParameters.createPostParameters(path, message, identity), listener);
+    }
+
 
     /**
      * Performs a PUT operation to the remote resource exposed by the MercadoLibre API. All PUT operations
@@ -476,16 +527,16 @@ public final class Meli {
      * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
      * not be executed in the UI thread since it performs a network operation.
      *
-     * @param path - the path of the resource to access.
-     * @param message     - the message to POST to the API.
-     * @param context     -  a Context instance.
+     * @param path     - the path of the resource to access.
+     * @param message  - the message to POST to the API.
+     * @param identity - user information of the current session.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse put(@NonNull String path, @NonNull String message, @NonNull Context context) {
+    public static ApiResponse put(@NonNull String path, @NonNull String message, Identity identity) {
         if (meliIdentity == null) {
-            loadIdentity(context);
+            meliIdentity = identity;
         }
 
         if (meliIdentity == null) {
@@ -497,23 +548,34 @@ public final class Meli {
         return new HttpPut(message).execute(path);
     }
 
+    /**
+     * Proxy method that performs a PUT operation to the remote resource exposed by the MercadoLibre API,
+     * on a worker thread. All PUT operations need the user to be previously authorized, that's why you
+     * need to authorize the user by using {@link Meli#startLogin(Activity, int)} before using this method.
+     *
+     * @param path     - the path of the resource to access.
+     * @param message  - the message to POST to the API.
+     * @param identity - user information of the current session.
+     * @param listener - listener that will receive the result of the request.
+     */
+    public static void asyncPut(@NonNull String path, @NonNull String message, Identity identity, ApiRequestListener listener) {
+        ApiPoolManager.requestApi(HttpRequestParameters.createPutParameters(path, message, identity), listener);
+    }
+
 
     /**
-     * Performs a DELETE operation to the remote resource exposed by the MercadoLibre API. All DELETE operations
-     * need the user to be previously authorized, that's why you need to authorize the user by using
-     * {@link Meli#startLogin(Activity, int)} before using this method.  This method should
-     * not be executed in the UI thread since it performs a network operation.
+     * Proxy method that performs a DELETE operation to the remote resource exposed by the MercadoLibre API, on a worker thread
+     * All DELETE operations need the user to be previously authorized, that's why you need to authorize the user by using
+     * {@link Meli#startLogin(Activity, int)} before using this method.
      *
-     * @param path - the path of the resource to access.
-     * @param message     - the message to POST to the API.
-     * @param context     -  a Context instance.
+     * @param path     - the path of the resource to access.
+     * @param message  - the message to POST to the API.
+     * @param identity - user information of the current session.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
-    @WorkerThread
-    @NonNull
-    public static ApiResponse delete(@NonNull String path, @NonNull String message, @NonNull Context context) {
+    public static ApiResponse delete(@NonNull String path, @NonNull String message, Identity identity) {
         if (meliIdentity == null) {
-            loadIdentity(context);
+            meliIdentity = identity;
         }
 
         if (meliIdentity == null) {
@@ -523,6 +585,20 @@ public final class Meli {
         String accessToken = meliIdentity.getAccessToken().getAccessTokenValue();
         path += "?access_token=" + accessToken;
         return new HttpDelete(message).execute(path);
+    }
+
+    /**
+     * Proxy method that performs a DELETE operation to the remote resource exposed by the MercadoLibre API, on a worker thread.
+     * All DELETE operations need the user to be previously authorized, that's why you need to authorize the user by using
+     * {@link Meli#startLogin(Activity, int)} before using this method.
+     *
+     * @param path     - the path of the resource to access.
+     * @param message  - the message to POST to the API.
+     * @param identity - user information of the current session.
+     * @param listener - listener that will receive the result of the request.
+     */
+    public static void asyncDelete(@NonNull String path, @NonNull String message, Identity identity, ApiRequestListener listener) {
+        ApiPoolManager.requestApi(HttpRequestParameters.createPutParameters(path, message, identity), listener);
     }
 
 

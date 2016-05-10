@@ -19,6 +19,7 @@
         </activity>
 
         <activity android:name=".LoginScreen" />
+        <activity android:name=".ThreadPoolScreen"/>
 
 
         <!-- Declare the MercadoLibreActivity as required by the SDK -->

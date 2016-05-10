@@ -52,6 +52,8 @@ public class LoginScreen extends AppCompatActivity {
     }
 
 
+
+
     private void processLoginProcessWithError() {
         Toast.makeText(LoginScreen.this, "Oooops, something went wrong with the login process", Toast.LENGTH_SHORT).show();
     }
