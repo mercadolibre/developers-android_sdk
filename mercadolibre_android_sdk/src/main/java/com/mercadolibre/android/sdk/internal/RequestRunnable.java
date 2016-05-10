@@ -1,12 +1,27 @@
 package com.mercadolibre.android.sdk.internal;
 
+import android.support.annotation.IntDef;
+
+import com.mercadolibre.android.sdk.ApiRequestListener;
 import com.mercadolibre.android.sdk.ApiResponse;
 import com.mercadolibre.android.sdk.Meli;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.SoftReference;
+
 /**
- * Runnable implementation that performs the actual request to the API..
+ * All components com.mercadolibre.android.sdk.internal all for internal use only. These components
+ * should not be used from outside the library since this behavior is not supported and it will
+ * suffer modifications without previous warning. <br>
+ * Runnable implementation that performs the actual request to the API.
  */
 public class RequestRunnable implements Runnable {
+
+    @IntDef({TASK_STARTED, TASK_COMPLETED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MeliRequestState {
+    }
 
     /**
      * The request has been started.
@@ -18,7 +33,7 @@ public class RequestRunnable implements Runnable {
     public static final int TASK_COMPLETED = 0x00000050;
 
     // listener that receives the result of the request
-    private ApiRequestListener apiListener;
+    private SoftReference<ApiRequestListener> apiListener;
 
     // parameter to perform the request
     private final HttpRequestParameters requestParameters;
@@ -42,10 +57,11 @@ public class RequestRunnable implements Runnable {
 
     /**
      * Sets the {@link ApiRequestListener} that will be notified with the result of the request.
+     *
      * @param apiListener - listener to attach
      */
     public void setApiListener(ApiRequestListener apiListener) {
-        this.apiListener = apiListener;
+        this.apiListener = new SoftReference<>(apiListener);
     }
 
     @Override
@@ -54,21 +70,21 @@ public class RequestRunnable implements Runnable {
             return;
         }
         setCurrentThread(Thread.currentThread());
-        poolManager.handleRequestState(this,TASK_STARTED);
+        poolManager.handleRequestState(this, TASK_STARTED);
         switch (requestParameters.getRequestCode()) {
-            case (HttpRequestParameters.GET):
+            case (HttpRequestParameters.MeliHttpVerbs.GET):
                 payload = Meli.get(requestParameters.getRequestPath());
                 break;
-            case (HttpRequestParameters.AUTHENTICATED_GET):
+            case (HttpRequestParameters.MeliHttpVerbs.AUTHENTICATED_GET):
                 payload = Meli.getAuth(requestParameters.getRequestPath(), requestParameters.getMeliIdentity());
                 break;
-            case (HttpRequestParameters.POST):
+            case (HttpRequestParameters.MeliHttpVerbs.POST):
                 payload = Meli.post(requestParameters.getRequestPath(), requestParameters.getRequestBody(), requestParameters.getMeliIdentity());
                 break;
-            case (HttpRequestParameters.PUT):
+            case (HttpRequestParameters.MeliHttpVerbs.PUT):
                 payload = Meli.put(requestParameters.getRequestPath(), requestParameters.getRequestBody(), requestParameters.getMeliIdentity());
                 break;
-            case (HttpRequestParameters.DELETE):
+            case (HttpRequestParameters.MeliHttpVerbs.DELETE):
                 payload = Meli.delete(requestParameters.getRequestPath(), requestParameters.getRequestBody(), requestParameters.getMeliIdentity());
                 break;
             default:
@@ -77,7 +93,7 @@ public class RequestRunnable implements Runnable {
         if (Thread.interrupted()) {
             return;
         }
-        poolManager.handleRequestState(this,TASK_COMPLETED);
+        poolManager.handleRequestState(this, TASK_COMPLETED);
     }
 
     /**
@@ -106,17 +122,19 @@ public class RequestRunnable implements Runnable {
     /**
      * Notifies the {@link ApiRequestListener} supplied that the request has been completed.
      */
-    public void notifyRequestCompleted(){
-        if (apiListener!=null)
-        apiListener.onRquestProcessed(requestParameters.getRequestCode(),payload);
+    public void notifyRequestCompleted() {
+        if (apiListener.get() != null) {
+            apiListener.get().onRequestProcessed(requestParameters.getRequestCode(), payload);
+        }
     }
 
     /**
      * Notifies the {@link ApiRequestListener} supplied that the request has started.
      */
-    public void notifyRequestStarted(){
-        if (apiListener!=null)
-        apiListener.onRequestStarted(requestParameters.getRequestCode());
+    public void notifyRequestStarted() {
+        if (apiListener != null) {
+            apiListener.get().onRequestStarted(requestParameters.getRequestCode());
+        }
     }
 
 }

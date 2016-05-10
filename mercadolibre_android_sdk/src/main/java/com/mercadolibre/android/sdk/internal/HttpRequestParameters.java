@@ -1,6 +1,13 @@
 package com.mercadolibre.android.sdk.internal;
 
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.mercadolibre.android.sdk.Identity;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Class that encapsulate all information needed to run a request to the API
@@ -8,30 +15,35 @@ import com.mercadolibre.android.sdk.Identity;
  */
 public class HttpRequestParameters {
 
-    /**
-     * Perform a GET request.
-     */
-    public static final int GET = 1;
 
-    /**
-     * Perform a Get request with authentication.
-     */
-    public static final int AUTHENTICATED_GET = 2;
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({MeliHttpVerbs.GET, MeliHttpVerbs.AUTHENTICATED_GET, MeliHttpVerbs.POST, MeliHttpVerbs.PUT, MeliHttpVerbs.DELETE})
+    public @interface MeliHttpVerbs {
+        /**
+         * Perform a GET request.
+         */
+        int GET = 1;
 
-    /**
-     * Perform a POST request.
-     */
-    public static final int POST = 3;
+        /**
+         * Perform a Get request with authentication.
+         */
+        int AUTHENTICATED_GET = 2;
 
-    /**
-     * Perform a PUT request.
-     */
-    public static final int PUT = 4;
+        /**
+         * Perform a POST request.
+         */
+        int POST = 3;
 
-    /**
-     * Perform a DELETE request.
-     */
-    public static final int DELETE = 5;
+        /**
+         * Perform a PUT request.
+         */
+        int PUT = 4;
+
+        /**
+         * Perform a DELETE request.
+         */
+        int DELETE = 5;
+    }
 
     // indicates the Http verb to execute in the request
     private int requestCode;
@@ -45,13 +57,14 @@ public class HttpRequestParameters {
     // identity of the current session
     private Identity meliIdentity;
 
-    public HttpRequestParameters(int requestCode, String requestPath, String requestBody, Identity meliIdentity) {
+    public HttpRequestParameters(@MeliHttpVerbs int requestCode, @NonNull String requestPath, @Nullable String requestBody, @Nullable Identity meliIdentity) {
         this.requestCode = requestCode;
         this.requestPath = requestPath;
         this.requestBody = requestBody;
         this.meliIdentity = meliIdentity;
     }
 
+    @MeliHttpVerbs
     public int getRequestCode() {
         return requestCode;
     }
@@ -78,7 +91,7 @@ public class HttpRequestParameters {
      * @return HttpRequestParameters object with the request parameters
      */
     public static HttpRequestParameters createGetParameters(String path, Identity meliIdentity) {
-        return new HttpRequestParameters(GET, path, null, meliIdentity);
+        return new HttpRequestParameters(MeliHttpVerbs.GET, path, null, meliIdentity);
     }
 
     /**
@@ -89,8 +102,8 @@ public class HttpRequestParameters {
      * @param meliIdentity of the current session.
      * @return HttpRequestParameters object with the request parameters
      */
-    public static HttpRequestParameters createAuthenticatedGetParameters(String path, Identity meliIdentity) {
-        return new HttpRequestParameters(AUTHENTICATED_GET, path, null, meliIdentity);
+    public static HttpRequestParameters createAuthenticatedGetParameters(@NonNull String path, @Nullable Identity meliIdentity) {
+        return new HttpRequestParameters(MeliHttpVerbs.AUTHENTICATED_GET, path, null, meliIdentity);
     }
 
     /**
@@ -102,8 +115,8 @@ public class HttpRequestParameters {
      * @param body         to append into the request
      * @return HttpRequestParameters object with the request parameters
      */
-    public static HttpRequestParameters createPutParameters(String path, String body, Identity meliIdentity) {
-        return new HttpRequestParameters(PUT, path, body, meliIdentity);
+    public static HttpRequestParameters createPutParameters(@NonNull String path, @Nullable String body, @Nullable Identity meliIdentity) {
+        return new HttpRequestParameters(MeliHttpVerbs.PUT, path, body, meliIdentity);
     }
 
     /**
@@ -115,8 +128,8 @@ public class HttpRequestParameters {
      * @param body         to append into the request
      * @return HttpRequestParameters object with the request parameters
      */
-    public static HttpRequestParameters createPostParameters(String path, String body, Identity meliIdentity) {
-        return new HttpRequestParameters(POST, path, body, meliIdentity);
+    public static HttpRequestParameters createPostParameters(@NonNull String path, @Nullable String body, @Nullable Identity meliIdentity) {
+        return new HttpRequestParameters(MeliHttpVerbs.POST, path, body, meliIdentity);
     }
 
     /**
@@ -128,8 +141,8 @@ public class HttpRequestParameters {
      * @param body         to append into the request
      * @return HttpRequestParameters object with the request parameters
      */
-    public static HttpRequestParameters createDelteParameters(String path, String body, Identity meliIdentity) {
-        return new HttpRequestParameters(DELETE, path, body, meliIdentity);
+    public static HttpRequestParameters createDelteParameters(@NonNull String path, @Nullable String body, @Nullable Identity meliIdentity) {
+        return new HttpRequestParameters(MeliHttpVerbs.DELETE, path, body, meliIdentity);
     }
 
 

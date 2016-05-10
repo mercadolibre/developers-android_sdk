@@ -10,7 +10,7 @@ import android.widget.Toast;
 import com.mercadolibre.android.sdk.ApiResponse;
 import com.mercadolibre.android.sdk.Identity;
 import com.mercadolibre.android.sdk.Meli;
-import com.mercadolibre.android.sdk.internal.ApiRequestListener;
+import com.mercadolibre.android.sdk.ApiRequestListener;
 
 public class ThreadPoolScreen extends AppCompatActivity implements View.OnClickListener, ApiRequestListener {
 
@@ -58,13 +58,13 @@ public class ThreadPoolScreen extends AppCompatActivity implements View.OnClickL
                 Meli.asyncGet("/users/" + getUserID(),this);
                 break;
             case R.id.btn_auth_get:
-                Meli.asyncGetAuth("/users/" + getUserID() + "/addresses",Meli.fetchMeliIdentity(getApplicationContext()),this);
+                Meli.asyncGetAuth("/users/" + getUserID() + "/addresses",Meli.getCurrentIdentity(getApplicationContext()),this);
                 break;
             case R.id.btn_simple_post:
-                Meli.asyncPost("/items", ITEM_JSON,Meli.fetchMeliIdentity(getApplicationContext()),this);
+                Meli.asyncPost("/items", ITEM_JSON,Meli.getCurrentIdentity(getApplicationContext()),this);
                 break;
             case R.id.btn_simple_put:
-                Meli.asyncPut("/items/MLA608718494",PUT_JSON,Meli.fetchMeliIdentity(getApplicationContext()),this);
+                Meli.asyncPut("/items/MLA608718494",PUT_JSON,Meli.getCurrentIdentity(getApplicationContext()),this);
                 break;
             default:
                 break;
@@ -74,7 +74,7 @@ public class ThreadPoolScreen extends AppCompatActivity implements View.OnClickL
 
 
     private String getUserID() {
-        Identity identity = Meli.getCurrentIdentity();
+        Identity identity = Meli.getCurrentIdentity(getApplicationContext());
         if (identity == null) {
             return null;
         } else {
@@ -105,7 +105,7 @@ public class ThreadPoolScreen extends AppCompatActivity implements View.OnClickL
             "}";
 
     @Override
-    public synchronized void onRquestProcessed(int requestCode, ApiResponse payload) {
+    public synchronized void onRequestProcessed(int requestCode, ApiResponse payload) {
         findViewById(R.id.pg_loading).setVisibility(View.GONE);
         if(payload == null) {
             Toast.makeText(ThreadPoolScreen.this, "Authenticate first!!!", Toast.LENGTH_SHORT).show();

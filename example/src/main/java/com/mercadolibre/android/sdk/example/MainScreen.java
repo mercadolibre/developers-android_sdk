@@ -88,7 +88,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                     ApiResponse executeCommand() {
                         String userId = getUserID();
                         if (userId != null) {
-                            return Meli.getAuth("/users/" + userId + "/addresses",Meli.fetchMeliIdentity(getApplicationContext()));
+                            return Meli.getAuth("/users/" + userId + "/addresses",Meli.getCurrentIdentity(getApplicationContext()));
                         } else {
                             return null;
                         }
@@ -100,7 +100,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        return Meli.post("/items", ITEM_JSON, Meli.fetchMeliIdentity(getApplicationContext()));
+                        return Meli.post("/items", ITEM_JSON, Meli.getCurrentIdentity(getApplicationContext()));
                     }
                 });
                 break;
@@ -108,7 +108,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        return Meli.put("/items/MLA608718494", PUT_JSON, Meli.fetchMeliIdentity(getApplicationContext()));
+                        return Meli.put("/items/MLA608718494", PUT_JSON, Meli.getCurrentIdentity(getApplicationContext()));
                     }
                 });
                 break;
@@ -122,7 +122,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
 
 
     private String getUserID() {
-        Identity identity = Meli.getCurrentIdentity();
+        Identity identity = Meli.getCurrentIdentity(getApplicationContext());
         if (identity == null) {
             return null;
         } else {

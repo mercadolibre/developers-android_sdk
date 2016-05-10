@@ -17,7 +17,6 @@ import android.text.TextUtils;
 import android.webkit.URLUtil;
 
 import com.mercadolibre.android.sdk.internal.ApiPoolManager;
-import com.mercadolibre.android.sdk.internal.ApiRequestListener;
 import com.mercadolibre.android.sdk.internal.HttpDelete;
 import com.mercadolibre.android.sdk.internal.HttpGet;
 import com.mercadolibre.android.sdk.internal.HttpPost;
@@ -363,20 +362,13 @@ public final class Meli {
      */
     public static
     @Nullable
-    Identity getCurrentIdentity() {
-        return meliIdentity;
-    }
-
-    public static
-    @Nullable
-    Identity fetchMeliIdentity(@NonNull Context context) {
+    Identity getCurrentIdentity(@NonNull Context context) {
         validateContextNull(context);
-        if (meliIdentity == null) {
+        if(meliIdentity == null) {
             loadIdentity(context);
         }
         return meliIdentity;
     }
-
 
     /**
      * Starts the Login process by calling the proper SDK behavior. The {@link Activity} provided
@@ -385,10 +377,10 @@ public final class Meli {
      * be called with the result code in {@link Activity#RESULT_OK} if the process is completed properly
      * or the {@link Activity#RESULT_CANCELED} if an error is detected.
      * If the process is completed properly, the SDK will provide the user's data in an {@link Identity}
-     * object that can be reached by the {@link Meli#getCurrentIdentity()} method.
+     * object that can be reached by the {@link Meli#getCurrentIdentity(Context context)} method.
      * Note that if the login process has been executed successfully at least once on the device, then
      * a false return value occurs and the process is skipped. At this point, you can retrieve the Identity
-     * of the logged user from the method {@link Meli#getCurrentIdentity()}.
+     * of the logged user from the method {@link Meli#getCurrentIdentity(Context context)}.
      *
      * @param activityClient - an {@link Activity} that will be used as callback receiver. When the process
      *                       is finished (whether is success or not) the {@link Activity#onActivityResult(int, int, Intent)}
@@ -434,7 +426,7 @@ public final class Meli {
      * @param path     - the path of the resource to access.
      * @param listener - listener that will receive the result of the request.
      */
-    public static void asyncGet(@NonNull String path, ApiRequestListener listener) {
+    public static void asyncGet(@NonNull String path, @NonNull ApiRequestListener listener) {
         ApiPoolManager.requestApi(HttpRequestParameters.createGetParameters(path, null), listener);
     }
 
@@ -450,7 +442,7 @@ public final class Meli {
      */
     @WorkerThread
     @Nullable
-    public static ApiResponse getAuth(@NonNull String path, Identity identity) {
+    public static ApiResponse getAuth(@NonNull String path, @Nullable Identity identity) {
         if (meliIdentity == null) {
             meliIdentity = identity;
         }
@@ -474,7 +466,7 @@ public final class Meli {
      * @param identity - user information of the current session.
      * @param listener - listener that will receive the result of the request.
      */
-    public static void asyncGetAuth(@NonNull String path, Identity identity, ApiRequestListener listener) {
+    public static void asyncGetAuth(@NonNull String path, @Nullable Identity identity, @NonNull ApiRequestListener listener) {
         ApiPoolManager.requestApi(HttpRequestParameters.createAuthenticatedGetParameters(path, identity), listener);
     }
 
@@ -492,7 +484,7 @@ public final class Meli {
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse post(@NonNull String path, @NonNull String message, Identity identity) {
+    public static ApiResponse post(@NonNull String path, @NonNull String message, @Nullable Identity identity) {
         if (meliIdentity == null) {
             meliIdentity = identity;
         }
@@ -516,7 +508,7 @@ public final class Meli {
      * @param identity - user information of the current session.
      * @param listener - listener that will receive the result of the request.
      */
-    public static void asyncPost(@NonNull String path, @NonNull String message, Identity identity, ApiRequestListener listener) {
+    public static void asyncPost(@NonNull String path, @NonNull String message, @Nullable Identity identity, @NonNull ApiRequestListener listener) {
         ApiPoolManager.requestApi(HttpRequestParameters.createPostParameters(path, message, identity), listener);
     }
 
@@ -534,7 +526,7 @@ public final class Meli {
      */
     @WorkerThread
     @NonNull
-    public static ApiResponse put(@NonNull String path, @NonNull String message, Identity identity) {
+    public static ApiResponse put(@NonNull String path, @NonNull String message, @Nullable Identity identity) {
         if (meliIdentity == null) {
             meliIdentity = identity;
         }
@@ -558,7 +550,7 @@ public final class Meli {
      * @param identity - user information of the current session.
      * @param listener - listener that will receive the result of the request.
      */
-    public static void asyncPut(@NonNull String path, @NonNull String message, Identity identity, ApiRequestListener listener) {
+    public static void asyncPut(@NonNull String path, @NonNull String message, @Nullable Identity identity, @NonNull ApiRequestListener listener) {
         ApiPoolManager.requestApi(HttpRequestParameters.createPutParameters(path, message, identity), listener);
     }
 
@@ -573,7 +565,7 @@ public final class Meli {
      * @param identity - user information of the current session.
      * @return - the {@link ApiResponse} retrieved from the API.
      */
-    public static ApiResponse delete(@NonNull String path, @NonNull String message, Identity identity) {
+    public static ApiResponse delete(@NonNull String path, @NonNull String message, @Nullable Identity identity) {
         if (meliIdentity == null) {
             meliIdentity = identity;
         }
@@ -597,7 +589,7 @@ public final class Meli {
      * @param identity - user information of the current session.
      * @param listener - listener that will receive the result of the request.
      */
-    public static void asyncDelete(@NonNull String path, @NonNull String message, Identity identity, ApiRequestListener listener) {
+    public static void asyncDelete(@NonNull String path, @NonNull String message, @Nullable Identity identity, @NonNull ApiRequestListener listener) {
         ApiPoolManager.requestApi(HttpRequestParameters.createPutParameters(path, message, identity), listener);
     }
 

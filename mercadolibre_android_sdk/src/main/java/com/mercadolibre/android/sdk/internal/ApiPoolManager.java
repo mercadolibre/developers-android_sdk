@@ -3,6 +3,9 @@ package com.mercadolibre.android.sdk.internal;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
+
+import com.mercadolibre.android.sdk.ApiRequestListener;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -10,6 +13,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * All components com.mercadolibre.android.sdk.internal all for internal use only. These components
+ * should not be used from outside the library since this behavior is not supported and it will
+ * suffer modifications without previous warning.<br>
  * This class creates pools of background threads that perform requests to the API.
  */
 public class ApiPoolManager {
@@ -85,7 +91,7 @@ public class ApiPoolManager {
      * @param httpRequestParameters - parameters of the request to be executed.
      * @param listener - to receive the results of the request.
      */
-    public static void requestApi(HttpRequestParameters httpRequestParameters, ApiRequestListener listener) {
+    public static void requestApi(@NonNull HttpRequestParameters httpRequestParameters, @NonNull ApiRequestListener listener) {
         RequestRunnable requestRunnable = new RequestRunnable(httpRequestParameters);
         requestRunnable.setApiListener(listener);
         sInstance.apiThreadPoolExecutor.execute(requestRunnable);
@@ -97,7 +103,7 @@ public class ApiPoolManager {
      * @param requestRunnable - responsible of perform the actual request.
      * @param state -state of the request.
      */
-    public void handleRequestState(RequestRunnable requestRunnable, int state) {
+    public void handleRequestState(@NonNull RequestRunnable requestRunnable, @RequestRunnable.MeliRequestState int state) {
         Message message =  mHandler.obtainMessage(state,requestRunnable);
         message.sendToTarget();
     }

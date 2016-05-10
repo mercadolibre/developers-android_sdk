@@ -180,6 +180,4 @@ public class ApiResponse implements Parcelable {
         int RESPONSE_CODE_REFRESH_TOKEN = 2;
 
     }
-
-
 }
