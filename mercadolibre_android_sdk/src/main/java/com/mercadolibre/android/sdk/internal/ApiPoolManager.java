@@ -64,10 +64,10 @@ public class ApiPoolManager {
                 super.handleMessage(msg);
                 RequestRunnable requestRunnable = (RequestRunnable) msg.obj;
                 switch (msg.what) {
-                    case RequestRunnable.TASK_STARTED:
+                    case RequestRunnable.MeliRequestState.TASK_STARTED:
                         requestRunnable.notifyRequestStarted();
                         break;
-                    case RequestRunnable.TASK_COMPLETED:
+                    case RequestRunnable.MeliRequestState.TASK_COMPLETED:
                         requestRunnable.notifyRequestCompleted();
                         break;
                     default:

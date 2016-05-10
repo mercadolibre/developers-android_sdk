@@ -18,19 +18,20 @@ import java.lang.ref.SoftReference;
  */
 public class RequestRunnable implements Runnable {
 
-    @IntDef({TASK_STARTED, TASK_COMPLETED})
+    @IntDef({MeliRequestState.TASK_STARTED, MeliRequestState.TASK_COMPLETED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface MeliRequestState {
-    }
 
-    /**
-     * The request has been started.
-     */
-    public static final int TASK_STARTED = 0x00000040;
-    /**
-     * The request has been completed
-     */
-    public static final int TASK_COMPLETED = 0x00000050;
+
+        /**
+         * The request has been started.
+         */
+        int TASK_STARTED = 0x00000040;
+        /**
+         * The request has been completed
+         */
+         int TASK_COMPLETED = 0x00000050;
+    }
 
     // listener that receives the result of the request
     private SoftReference<ApiRequestListener> apiListener;
@@ -70,7 +71,7 @@ public class RequestRunnable implements Runnable {
             return;
         }
         setCurrentThread(Thread.currentThread());
-        poolManager.handleRequestState(this, TASK_STARTED);
+        poolManager.handleRequestState(this, MeliRequestState.TASK_STARTED);
         switch (requestParameters.getRequestCode()) {
             case (HttpRequestParameters.MeliHttpVerbs.GET):
                 payload = Meli.get(requestParameters.getRequestPath());
@@ -93,7 +94,7 @@ public class RequestRunnable implements Runnable {
         if (Thread.interrupted()) {
             return;
         }
-        poolManager.handleRequestState(this, TASK_COMPLETED);
+        poolManager.handleRequestState(this, MeliRequestState.TASK_COMPLETED);
     }
 
     /**
