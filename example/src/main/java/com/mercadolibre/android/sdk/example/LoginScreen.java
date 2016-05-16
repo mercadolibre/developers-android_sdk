@@ -43,13 +43,15 @@ public class LoginScreen extends AppCompatActivity {
 
 
     private void processLoginProcessCompleted() {
-        Identity identity = Meli.getCurrentIdentity();
+        Identity identity = Meli.getCurrentIdentity(getApplicationContext());
         if (identity != null) {
             ((TextView) findViewById(R.id.txt_user_id)).setText(getString(R.string.user_id_text, identity.getUserId()));
             ((TextView) findViewById(R.id.txt_access_token)).setText(getString(R.string.access_token_text, identity.getAccessToken().getAccessTokenValue()));
             ((TextView) findViewById(R.id.txt_expires_in)).setText(getString(R.string.expires_in_text, String.valueOf(identity.getAccessToken().getAccessTokenLifetime())));
         }
     }
+
+
 
 
     private void processLoginProcessWithError() {

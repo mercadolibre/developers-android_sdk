@@ -56,6 +56,9 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
 
         Button btnPut = (Button) findViewById(R.id.btn_simple_put);
         btnPut.setOnClickListener(this);
+
+        Button btnThread = (Button) findViewById(R.id.btn_simple_thread);
+        btnThread.setOnClickListener(this);
     }
 
     @Override
@@ -85,7 +88,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                     ApiResponse executeCommand() {
                         String userId = getUserID();
                         if (userId != null) {
-                            return Meli.getAuth("/users/" + userId + "/addresses", MainScreen.this);
+                            return Meli.getAuth("/users/" + userId + "/addresses",Meli.getCurrentIdentity(getApplicationContext()));
                         } else {
                             return null;
                         }
@@ -97,7 +100,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        return Meli.post("/items", ITEM_JSON, MainScreen.this);
+                        return Meli.post("/items", ITEM_JSON, Meli.getCurrentIdentity(getApplicationContext()));
                     }
                 });
                 break;
@@ -105,10 +108,12 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
                 new GetAsycTask().execute(new Command() {
                     @Override
                     ApiResponse executeCommand() {
-                        return Meli.put("/items/MLA608718494", PUT_JSON, MainScreen.this);
+                        return Meli.put("/items/MLA608718494", PUT_JSON, Meli.getCurrentIdentity(getApplicationContext()));
                     }
                 });
                 break;
+            case R.id.btn_simple_thread:
+                startActivity(new Intent(this, ThreadPoolScreen.class));
             default:
                 break;
         }
@@ -117,7 +122,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
 
 
     private String getUserID() {
-        Identity identity = Meli.getCurrentIdentity();
+        Identity identity = Meli.getCurrentIdentity(getApplicationContext());
         if (identity == null) {
             return null;
         } else {
@@ -135,7 +140,7 @@ public class MainScreen extends AppCompatActivity implements View.OnClickListene
         @Override
         protected void onPostExecute(ApiResponse apiResponse) {
             findViewById(R.id.pg_loading).setVisibility(View.GONE);
-            if(apiResponse == null) {
+            if (apiResponse == null) {
                 Toast.makeText(MainScreen.this, "Authenticate first!!!", Toast.LENGTH_SHORT).show();
             } else {
                 ResultDialogFragment fragment = ResultDialogFragment.newInstance(apiResponse);
