@@ -39,9 +39,8 @@ public final class Meli {
     // The key for the redirection URL in the Android manifest.
     public static final String LOGIN_REDIRECT_URL_PROPERTY = "com.mercadolibre.android.sdk.RedirectUrl";
 
-    //TODO add SDK readme URL here.
     static final String MERCADO_LIBRE_ACTIVITY_NOT_FOUND = "MercadoLibreActivity is not declared in your AndroidManifest.xml"
-            + " file. See TODO for more information";
+            + " file. See https://github.com/mercadolibre/developers-android_sdk/blob/master/README.md#authorizing-your-application-with-the-user for more information";
     static final String INVALID_NULL_CONTEXT = "The Context that you give to this method can not be null";
     static final String NO_INTERNET_PERMISSION_REASON =
             "Please add " + "<uses-permission android:name=\"android.permission.INTERNET\" /> " +
@@ -49,25 +48,20 @@ public final class Meli {
     static final String APP_IDENTIFIER_AS_INTEGER = "Application identifier must be placed in the Strings resources file"
             + "not as an integer value in the AndroidManifest file";
 
-    //TODO 2 add sdk readme URL here for app identifier.
     static final String APP_IDENTIFIER_NOT_DECLARED = "You need to place the application identifier in the AndroidManifest file"
-            + " with the " + APPLICATION_ID_PROPERTY + " key. Check TODO 2";
+            + " with the " + APPLICATION_ID_PROPERTY + " key. Check https://github.com/mercadolibre/developers-android_sdk/blob/master/README.md#how-do-i-start-using-it";
 
-    //TODO 2 add sdk readme URL here for app identifier.
     static final String APP_IDENTIFIER_NOT_PARSED = "Application identifier must be placed in the Strings resources file."
-            + " Please, verify the example code provided in TODO 3";
+            + " Please, verify the example code provided in https://github.com/mercadolibre/developers-android_sdk/blob/master/README.md#how-do-i-start-using-it";
 
 
-    //TODO 3 add sdk readme URL here for app identifier.
     static final String REDIRECT_URL_NOT_DECLARED = "You need to place the redirection URL in the AndroidManifest file"
-            + " with the " + LOGIN_REDIRECT_URL_PROPERTY + " key. Check TODO 3";
+            + " with the " + LOGIN_REDIRECT_URL_PROPERTY + " key. Check https://github.com/mercadolibre/developers-android_sdk/blob/master/README.md#how-do-i-start-using-it";
 
-    //TODO 4
     static final String INVALID_URL_FORMAT = "The redirect URI provided with the key " + LOGIN_REDIRECT_URL_PROPERTY +
-            " has an invalid format. Please, refer to TODO 4";
+            " has an invalid format. Please, refer to https://github.com/mercadolibre/developers-android_sdk/blob/master/README.md#how-do-i-start-using-it";
 
-    //TODO 5
-    static final String SDK_NOT_INITIALIZED = "You need to call Meli.initializeSDK() in order to perform this action.";
+    static final String SDK_NOT_INITIALIZED = "You need to call Meli.initializeSDK() in order to perform this action. Please, refer to https://github.com/mercadolibre/developers-android_sdk/blob/master/README.md#how-do-i-start-using-it";
 
 
     // Flag used to indicate when the SDK is initialized.
@@ -364,7 +358,7 @@ public final class Meli {
     @Nullable
     Identity getCurrentIdentity(@NonNull Context context) {
         validateContextNull(context);
-        if(meliIdentity == null) {
+        if (meliIdentity == null) {
             loadIdentity(context);
         }
         return meliIdentity;
