@@ -10,7 +10,7 @@ Add this line to yout app's `build.gradle` inside the `dependencies`section:
 
 ```
 dependencies {
-    compile 'TODO complete here with Maven build'
+    compile 'com.mercadolibre.android.sdk:mercadolibre_android_sdk:1.0.0'
 }
 ```
 
