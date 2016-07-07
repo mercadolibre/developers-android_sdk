@@ -99,30 +99,68 @@ You have two basic ways to do a GET call:
 ```java
 ApiResponse r = Meli.get("/users/123");
 ```
+    or
+
+```java
+Meli.asyncGet("/users/" + getUserID(),apiRequestListener);
+```
 
 ### Authenticated
 
 ```java
-ApiResponse r = Meli.getAuth("/users/123/addresses", context);
+ApiResponse r = Meli.getAuth("/users/123/addresses", Meli.getCurrentIdentity(context));
 ```
+    or
 
+```java
+Meli.asyncGetAuth("/users/" + getUserID() + "/addresses",Meli.getCurrentIdentity(context),apiRequestListener);
+```
 
 ## Making POST calls
 
 ```java
-ApiResponse r = Meli.post("/items", bodyJsonAsString , context);
+ApiResponse r = Meli.post("/items", bodyJsonAsString , Meli.getCurrentIdentity(context));
+```
+    or
+
+```java
+Meli.asyncPost("/items", bodyJsonAsString,Meli.getCurrentIdentity(context),apiRequestListener);
 ```
 
 ## Making PUT calls
 
 ```java
-ApiResponse r = Meli.put("/items", bodyJsonAsString , context);
+ApiResponse r = Meli.put("/items", bodyJsonAsString , Meli.getCurrentIdentity(context));
 ```
+
+    or
+
+```java
+ Meli.asyncPut("/items/MLA608718494",bodyJsonAsString,Meli.getCurrentIdentity(context),apiRequestListener);
+```
+
 
 ## Making DELETE calls
 
 ```java
-ApiResponse r = Meli.delete("/items", bodyJsonAsString , context);
+ApiResponse r = Meli.delete("/items", bodyJsonAsString , Meli.getCurrentIdentity(context));
+```
+
+    or
+
+```java
+ApiResponse r = Meli.asyncDelete("/items", bodyJsonAsString , Meli.getCurrentIdentity(context), apiRequestListener);
+```
+
+## Asynchronous calls
+
+Make sure to implement ``` ApiRequestListener ``` on any component that will receive results
+from the calls.
+
+Those results will be notified to the listener supplied through the callback method
+
+```java
+void onRequestProcessed(@HttpRequestParameters.MeliHttpVerbs int requestCode, ApiResponse payload);
 ```
 
 ## Examples
