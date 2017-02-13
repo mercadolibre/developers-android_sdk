@@ -33,7 +33,7 @@ public final class HttpPost extends HttpOperation {
         connection.setReadTimeout(mReadTimeout);
         connection.setConnectTimeout(mConnectTimeout);
         connection.setRequestMethod("POST");
-        connection.setFixedLengthStreamingMode(mBody.getBytes().length);
+        connection.setFixedLengthStreamingMode(mBody.getBytes("UTF-8").length);
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
         return connection;
@@ -47,7 +47,7 @@ public final class HttpPost extends HttpOperation {
     @Override
     protected void performOperationBeforeConnect(HttpsURLConnection connection) throws IOException {
         DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
-        writer.writeBytes(mBody);
+        writer.write(mBody.getBytes("UTF-8"));
         writer.flush();
         writer.close();
     }
