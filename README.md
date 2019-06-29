@@ -1,12 +1,12 @@
-#MercadoLibre's Android SDK
+# MercadoLibre's Android SDK
 
 This is the official Android SDK for MercadoLibre's Platform.
 
-##How can I install it?
+## How can I install it?
 
-###Android Studio
+### Android Studio
 
-Add this line to yout app's `build.gradle` inside the `dependencies`section:
+Add this line to your app's `build.gradle` inside the `dependencies` section:
 
 ```
 dependencies {
@@ -47,12 +47,12 @@ Then you need to link this resources in the AndroidManifest.xml file of your app
             android:value="@string/meli_redirect_uri" />
             
             
-  *NOTE: if you fail to provide any of these attributes or the proper declaration in the AndroidManifest.xml file, the library will throw an exception on startup.
+  _NOTE: if you fail to provide any of these attributes or the proper declaration in the AndroidManifest.xml file, the library will throw an exception on startup._
   
 Also, you need to declare the `<uses-permission android:name="android.permission.INTERNET" />` permission in your AndroidManifest.xml file 
 and add the MercadoLibreActivity as described below.
   
-##Initialize the SDK
+## Initialize the SDK
 
 The first thing you need to do in order to use any of the features provided by the SDK is initialize it. You can do this by calling 
 
@@ -99,7 +99,7 @@ You have two basic ways to do a GET call:
 ```java
 ApiResponse r = Meli.get("/users/123");
 ```
-    or
+   or
 
 ```java
 Meli.asyncGet("/users/" + getUserID(),apiRequestListener);
@@ -110,7 +110,7 @@ Meli.asyncGet("/users/" + getUserID(),apiRequestListener);
 ```java
 ApiResponse r = Meli.getAuth("/users/123/addresses", Meli.getCurrentIdentity(context));
 ```
-    or
+   or
 
 ```java
 Meli.asyncGetAuth("/users/" + getUserID() + "/addresses",Meli.getCurrentIdentity(context),apiRequestListener);
@@ -121,7 +121,7 @@ Meli.asyncGetAuth("/users/" + getUserID() + "/addresses",Meli.getCurrentIdentity
 ```java
 ApiResponse r = Meli.post("/items", bodyJsonAsString , Meli.getCurrentIdentity(context));
 ```
-    or
+   or
 
 ```java
 Meli.asyncPost("/items", bodyJsonAsString,Meli.getCurrentIdentity(context),apiRequestListener);
@@ -133,7 +133,7 @@ Meli.asyncPost("/items", bodyJsonAsString,Meli.getCurrentIdentity(context),apiRe
 ApiResponse r = Meli.put("/items", bodyJsonAsString , Meli.getCurrentIdentity(context));
 ```
 
-    or
+   or
 
 ```java
  Meli.asyncPut("/items/MLA608718494",bodyJsonAsString,Meli.getCurrentIdentity(context),apiRequestListener);
@@ -146,7 +146,7 @@ ApiResponse r = Meli.put("/items", bodyJsonAsString , Meli.getCurrentIdentity(co
 ApiResponse r = Meli.delete("/items", bodyJsonAsString , Meli.getCurrentIdentity(context));
 ```
 
-    or
+   or
 
 ```java
 ApiResponse r = Meli.asyncDelete("/items", bodyJsonAsString , Meli.getCurrentIdentity(context), apiRequestListener);
